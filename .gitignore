@@ -1,0 +1,67 @@
+# Ignore Windows Thumbnails
+Thumbs.db
+
+# Ignore Built Visual Studio Files
+*.suo
+*.ilk
+*.ipch
+*.opensdf
+*.obj
+*.pdb
+*.user
+*.aps
+*.dbmdl
+*.pch
+*.vspscc
+*.vssscc
+*_i.c
+*_p.c
+*_i.h
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
+*.tlog
+[Bb]in/*
+[Dd]eploy
+[Tt]est[Ii]mages
+[Dd]ebug*/*
+*.lib
+*.sbr
+obj/
+[Rr]elease*/*
+*.sdf
+/src/.vs/**
+
+# Ignore Local ReSharper Files
+_ReSharper*/
+[Tt]est[Rr]esult*
+[Ll]ogs
+COPYERRORS.*
+InstallUtil.InstallLog
+*.ccexclude
+
+# Ignore KDiff Original Files - Created on merges
+*.orig
+
+# Ignore NuGet Packages
+#src/packages/*/*
+src/prototypes/*/packages/*/
+
+# Ignore Debug/Release
+*/[Dd]ebug*/*
+*/*/[Dd]ebug*/*
+*/[Rr]elease*/*
+*/*/[Rr]elease*/*
+
+# For MultiExplorer
+MultiExplorer/MultiExplorer.v12.suo
+MultiExplorer/RunCmd.exe
+
+# For TinyDB
+TinyDB/RunCmd.exe
+

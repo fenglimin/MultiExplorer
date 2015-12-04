@@ -1,0 +1,435 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (Simplified, PRC) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\MultiExplorer.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\MultiExplorer.ico"
+IDI_ICON_FORWARD        ICON                    "res\\icon_bac.ico"
+IDI_ICON_UPWARD         ICON                    "res\\icon_for.ico"
+IDI_ICON_SHOW_HIDDEN    ICON                    "res\\icon_ref.ico"
+IDI_ICON_REFRESH        ICON                    "res\\ico00002.ico"
+IDI_ICON_BACKWARD       ICON                    "res\\ico00001.ico"
+IDI_ICON_CLOSE          ICON                    "res\\Cancel3_32x32x256.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// IDR_EXE
+//
+
+IDR_EXE_RUN_CMD         IDR_EXE                 "res\\RunCmd.exe"
+IDR_CONFIG              IDR_EXE                 "res\\MultiExplorer.ini"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_POPUP MENU
+BEGIN
+    POPUP "Popup"
+    BEGIN
+        MENUITEM "Delete All Selected Row",     ID_POPUP_DELETEALLSELECTEDROW
+        MENUITEM "Insert Copy",                 ID_POPUP_INSERTCOPY
+        MENUITEM SEPARATOR
+        MENUITEM "Move Top",                    ID_POPUP_MOVETOP
+        MENUITEM "Move Up",                     ID_POPUP_MOVEUP
+        MENUITEM "Move Down",                   ID_POPUP_MOVEDOWN
+        MENUITEM "Move Bottom",                 ID_POPUP_MOVEBOTTOM
+        MENUITEM "Options",                     ID_POPUP_OPTIONS
+        MENUITEM "Change Layout",               ID_POPUP_CHANGELAYOUT
+        MENUITEM "Import",                      ID_POPUP_IMPORT
+        MENUITEM "Export",                      ID_POPUP_EXPORT
+        MENUITEM "Save As",                     ID_POPUP_SAVE_AS
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG_EXPLORER DIALOGEX 0, 0, 246, 341
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+EXSTYLE WS_EX_STATICEDGE
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST_FILE,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,43,232,275
+    EDITTEXT        IDC_EDIT_SEARCH,115,6,93,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO_DIR,7,26,232,190,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "",IDC_BUTTON_BACKWARD,7,4,20,18
+    PUSHBUTTON      "",IDC_BUTTON_FORWARD,28,4,20,18
+    PUSHBUTTON      "",IDC_BUTTON_UPWARD,49,4,20,18
+    PUSHBUTTON      "",IDC_BUTTON_REFRESH,70,4,20,18
+    LTEXT           "Static",IDC_STATIC_STATISTICS,7,323,232,11,SS_SUNKEN
+    CONTROL         "",IDC_CHECK_SHOW_HIDDEN,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,91,4,20,18
+    PUSHBUTTON      "",IDC_BUTTON_QUIT,219,5,20,18
+END
+
+IDD_DIALOG_LAYOUT DIALOGEX 0, 0, 246, 122
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select Layout"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST_LAYOUT,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,232,108
+END
+
+IDD_DIALOG_OPERATION DIALOGEX 0, 0, 316, 87
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Cancel",IDCANCEL,259,66,50,14
+    CONTROL         "",IDC_PROGRESS_OPERATION,"msctls_progress32",WS_BORDER,7,34,302,14
+    LTEXT           "Static",IDC_STATIC_WORK_DIR,7,7,302,8
+    LTEXT           "Static",IDC_STATIC_WORK_FILE,7,21,302,8
+    CONTROL         "",IDC_LIST_RESULT,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,7,56,240,24
+END
+
+IDD_DIALOG_USER_OPTION DIALOGEX 0, 0, 397, 337
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "User Option"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST_USER_OPTION,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,5,383,300
+    PUSHBUTTON      "OK",IDOK,244,316,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,340,316,50,14
+END
+
+IDD_DIALOG_TOOLBAR DIALOGEX 0, 0, 304, 38
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+EXSTYLE WS_EX_STATICEDGE
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+END
+
+IDD_DIALOG_DIR_TREE DIALOGEX 0, 0, 246, 341
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+EXSTYLE WS_EX_STATICEDGE
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_TREE_DIR,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,7,232,327
+END
+
+IDD_DIALOG_DIR_FAVIOURITE DIALOGEX 0, 0, 246, 341
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+EXSTYLE WS_EX_STATICEDGE
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_TREE_DIR_FAVIOURITE,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,7,232,327
+END
+
+IDD_DIALOG_ADD_TO_FAVORITE DIALOGEX 0, 0, 174, 85
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,17,59,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,101,59,50,14
+    LTEXT           "Group",IDC_STATIC_GROUP,15,17,20,8
+    COMBOBOX        IDC_COMBO_GROUP,47,16,110,138,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Name",IDC_STATIC_NAME,14,38,20,8
+    EDITTEXT        IDC_EDIT_NAME,46,36,111,14,ES_AUTOHSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DIALOG_EXPLORER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        BOTTOMMARGIN, 334
+    END
+
+    IDD_DIALOG_LAYOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 115
+    END
+
+    IDD_DIALOG_OPERATION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 80
+    END
+
+    IDD_DIALOG_USER_OPTION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 390
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 330
+    END
+
+    IDD_DIALOG_TOOLBAR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 297
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 31
+    END
+
+    IDD_DIALOG_DIR_TREE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        VERTGUIDE, 222
+        BOTTOMMARGIN, 334
+    END
+
+    IDD_DIALOG_DIR_FAVIOURITE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        VERTGUIDE, 222
+        BOTTOMMARGIN, 334
+    END
+
+    IDD_DIALOG_ADD_TO_FAVORITE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 167
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 73
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP1             BITMAP                  "res\\bitmap1.bmp"
+IDB_BITMAP2             BITMAP                  "res\\bitmap2.bmp"
+IDB_BITMAP_1X2          BITMAP                  "res\\bitmap_2.bmp"
+IDB_BITMAP_1X3          BITMAP                  "res\\bitmap_1.bmp"
+IDB_BITMAP_2X2          BITMAP                  "res\\bmp00001.bmp"
+IDB_BITMAP_1X4          BITMAP                  "res\\bmp00002.bmp"
+IDB_BITMAP_2X4          BITMAP                  "res\\bitmap4.bmp"
+IDB_BITMAP_2X3          BITMAP                  "res\\bmp00004.bmp"
+IDB_BITMAP_2X1          BITMAP                  "res\\bitmap5.bmp"
+IDB_BITMAP3             BITMAP                  "res\\bmp00005.bmp"
+IDB_BITMAP_7_1          BITMAP                  "res\\bmp00003.bmp"
+IDB_BITMAP_6_1          BITMAP                  "res\\bmp00006.bmp"
+IDB_BITMAP_6_2          BITMAP                  "res\\bitmap6.bmp"
+IDB_BITMAP_5_2          BITMAP                  "res\\bitmap7.bmp"
+IDB_BITMAP_5_3          BITMAP                  "res\\bitmap8.bmp"
+IDB_BITMAP_6_3          BITMAP                  "res\\bmp00007.bmp"
+IDB_BITMAP_5_1          BITMAP                  "res\\bmp00008.bmp"
+IDB_BITMAP_7_2          BITMAP                  "res\\bmp00009.bmp"
+IDB_BITMAP_3_1          BITMAP                  "res\\bmp00010.bmp"
+IDB_BITMAP_3_2          BITMAP                  "res\\bmp00011.bmp"
+IDB_BITMAP_3_3          BITMAP                  "res\\bmp00012.bmp"
+IDB_BITMAP_3_4          BITMAP                  "res\\bmp00013.bmp"
+#endif    // Chinese (Simplified, PRC) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 235, 55
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About MultiExplorer"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "MultiExplorer Version 1.0",IDC_STATIC_VERSION,40,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2012 - Sail Feng",IDC_STATIC_DEVELOPPER,40,25,188,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+END
+
+IDD_MULTIEXPLORER_DIALOG DIALOGEX 0, 0, 370, 243
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "MultiExplorer"
+FONT 9, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_MULTIEXPLORER_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 363
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 236
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "MultiExplorer MFC Application"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "MultiExplorer"
+            VALUE "LegalCopyright", "Copyright (C) 2012"
+            VALUE "OriginalFilename", "MultiExplorer.EXE"
+            VALUE "ProductName", "MultiExplorer Application"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_ABOUTBOX            "&About MultiExplorer..."
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\MultiExplorer.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
