@@ -156,6 +156,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Socket\SocketTool.cpp" />
     <ClCompile Include="AddToFavoriteDialog.cpp" />
     <ClCompile Include="BCMenu.cpp" />
     <ClCompile Include="BtnST.cpp" />
@@ -206,6 +207,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Socket\SocketTool.h" />
     <ClInclude Include="AddToFavoriteDialog.h" />
     <ClInclude Include="BCMenu.h" />
     <ClInclude Include="BtnST.h" />
@@ -281,6 +283,11 @@
       <Project>{0047f5ad-e720-4d36-a9e4-9165d3e708a2}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="C:\Temp\84164.gif" />
+    <Image Include="res\bmp00014.bmp" />
+    <Image Include="res\icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

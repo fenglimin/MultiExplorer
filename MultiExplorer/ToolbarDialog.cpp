@@ -21,6 +21,7 @@ CToolbarDialog::~CToolbarDialog()
 {
 	DeleteQuickLaunchButtons();
 	DeleteDriverButtons();
+	DeleteFunctionButtons();
 }
 
 void CToolbarDialog::DoDataExchange(CDataExchange* pDX)
@@ -58,6 +59,8 @@ BOOL CToolbarDialog::OnInitDialog()
 
 	m_nNewButtonID = m_listQuickLaunchButtons.size()+1;
 
+	AppendNetClipboardButton();
+
 	SetTimer(1, 1000, NULL);
 
 	return TRUE;
@@ -87,6 +90,12 @@ void CToolbarDialog::SetPosition( const CRect& rcWnd )
 void CToolbarDialog::OnButtonClick( UINT uID )
 {
 	uID -= BUTTON_COMMAND_ID_BEGIN;
+
+	if (uID == MAX_BUTTON_COUNT)
+	{
+
+		return;
+	}
 
 	CheckClick(m_listQuickLaunchButtons, uID);
 	CheckClick(m_listDriverButtons, uID);
@@ -214,10 +223,29 @@ void CToolbarDialog::DeleteAllButtons(list<CToolbarButton*>& listButton)
 	}
 }
 
+void CToolbarDialog::AppendNetClipboardButton()
+{
+	CRect rc;
+	GetButtonRect(-1, rc);
+
+	CToolbarButton* pToolbarButton = new CToolbarButton;
+	pToolbarButton->bDriverButton = TRUE;
+	pToolbarButton->strButtonFile = "";
+	pToolbarButton->nButtonID = MAX_BUTTON_COUNT;
+	pToolbarButton->pButton = new CButtonST;
+	pToolbarButton->pButton->Create(_T(""), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		rc, this, BUTTON_COMMAND_ID_BEGIN + pToolbarButton->nButtonID);
+
+	pToolbarButton->pButton->SetIcon(IDI_ICON_NET_CLIPBOARD);
+	pToolbarButton->pButton->SetTooltipText(_M("Network Clipboard"));
+
+	m_listFunctionButtons.insert(m_listFunctionButtons.end(), pToolbarButton);
+}
+
 void CToolbarDialog::AppendDriverButtons(const CDiskDriverInfo& di)
 {
 	CRect rc;
-	int nID = (int)m_listDriverButtons.size()+1;
+	int nID = (int)m_listFunctionButtons.size() + (int)m_listDriverButtons.size() + 1;
 	GetButtonRect(-nID, rc);
 
 	CToolbarButton* pToolbarButton = new CToolbarButton;
@@ -253,12 +281,23 @@ void CToolbarDialog::CheckClick( list<CToolbarButton*>& listButton, UINT uID )
 
 void CToolbarDialog::RefreshDriverButtons()
 {
+	int nID = 0;
+	list<CToolbarButton*>::iterator it;
+	for (it = m_listFunctionButtons.begin(); it != m_listFunctionButtons.end(); it++)
+	{
+		nID++;
+		CToolbarButton* pToolbarButton = *it;
+		CRect rc;
+		GetButtonRect(-nID, rc);
+		pToolbarButton->pButton->MoveWindow(rc);
+	}
+
+
+
 	vector<CDiskDriverInfo> vecDiskDriverInfo = m_pDiskFileManager->m_vecDiskDriverInfoLast;
 	if ( vecDiskDriverInfo.size() == 0 )
 		return;
 
-	list<CToolbarButton*>::iterator it;
-	int nID = 0;
 	for ( it = m_listDriverButtons.begin(); it != m_listDriverButtons.end(); it ++)
 	{
 		nID ++;

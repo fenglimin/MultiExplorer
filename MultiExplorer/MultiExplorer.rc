@@ -71,6 +71,7 @@ IDI_ICON_SHOW_HIDDEN    ICON                    "res\\icon_ref.ico"
 IDI_ICON_REFRESH        ICON                    "res\\ico00002.ico"
 IDI_ICON_BACKWARD       ICON                    "res\\ico00001.ico"
 IDI_ICON_CLOSE          ICON                    "res\\Cancel3_32x32x256.ico"
+IDI_ICON_NET_CLIPBOARD  ICON                    "res\\icon1.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -295,6 +296,14 @@ IDB_BITMAP_3_1          BITMAP                  "res\\bmp00010.bmp"
 IDB_BITMAP_3_2          BITMAP                  "res\\bmp00011.bmp"
 IDB_BITMAP_3_3          BITMAP                  "res\\bmp00012.bmp"
 IDB_BITMAP_3_4          BITMAP                  "res\\bmp00013.bmp"
+IDB_BITMAP4             BITMAP                  "res\\bmp00014.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDB_PNG1                PNG                     "C:\\Temp\\84164.gif"
 #endif    // Chinese (Simplified, PRC) resources
 /////////////////////////////////////////////////////////////////////////////
 

@@ -33,6 +33,7 @@ public:
 	
 	list<CToolbarButton*>	m_listQuickLaunchButtons;
 	list<CToolbarButton*>	m_listDriverButtons;
+	list<CToolbarButton*>	m_listFunctionButtons;
 	vector<CString>	m_vecDeletedButtonFile;
 	CDiskFileManager*	m_pDiskFileManager;
 	int m_nNewButtonID;
@@ -46,11 +47,13 @@ public:
 	void SetDiskFileManager(CDiskFileManager* pDiskFileManager) { m_pDiskFileManager = pDiskFileManager; }
 	void RefreshDriverButtons();
 	void AppendDriverButtons(const CDiskDriverInfo& di);
+	void AppendNetClipboardButton();
 
 	void CheckClick(list<CToolbarButton*>& listButton, UINT uID);
 
 	void DeleteQuickLaunchButtons() { DeleteAllButtons(m_listQuickLaunchButtons); }
 	void DeleteDriverButtons() { DeleteAllButtons(m_listDriverButtons); }
+	void DeleteFunctionButtons() { DeleteAllButtons(m_listFunctionButtons); }
 
 	void DeleteAllButtons(list<CToolbarButton*>& listButton);
 	void SetPosition(const CRect& rcWnd);
