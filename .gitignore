@@ -58,10 +58,7 @@ src/prototypes/*/packages/*/
 */[Rr]elease*/*
 */*/[Rr]elease*/*
 
-# For MultiExplorer
-MultiExplorer/MultiExplorer.v12.suo
-MultiExplorer/RunCmd.exe
+MultiExplorer.v12.suo
+RunCmd.exe
 
-# For TinyDB
-TinyDB/RunCmd.exe
 
