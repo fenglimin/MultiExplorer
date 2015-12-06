@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Socket\SocketTool.cpp" />
+    <ClCompile Include="..\Socket\WorkTool.cpp" />
     <ClCompile Include="AddToFavoriteDialog.cpp" />
     <ClCompile Include="BCMenu.cpp" />
     <ClCompile Include="BtnST.cpp" />
@@ -208,6 +209,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Socket\SocketTool.h" />
+    <ClInclude Include="..\Socket\WorkTool.h" />
     <ClInclude Include="AddToFavoriteDialog.h" />
     <ClInclude Include="BCMenu.h" />
     <ClInclude Include="BtnST.h" />

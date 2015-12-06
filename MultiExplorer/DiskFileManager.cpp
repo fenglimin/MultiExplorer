@@ -5,6 +5,19 @@
 #include "UserOptionDialog.h"
 #include "AddToFavoriteDialog.h"
 
+static UINT NetWorkerThreadFunc(LPVOID pParam)
+{
+	CDiskFileManager* pDiskFileManager = (CDiskFileManager*)pParam;
+
+	if (!pDiskFileManager->m_workTool.StartWorking(1229))
+	{
+		CString strShow;
+		strShow.Format(_M("Can NOT start net listener with port %d, please check!"), 1229);
+		AfxMessageBox(strShow);
+	}
+	return 0;
+}
+
 static UINT UpdateIconThreadFunc(LPVOID pParam)
 {
 	CUpdateIconThreadParam* pUpdateIconThreadPara = (CUpdateIconThreadParam*)pParam;
@@ -1066,6 +1079,8 @@ BOOL CDiskFileManager::Init(CWnd* pUserWnd)
 	pUserWnd->GetClientRect(&rcClient);
 	Relayout(rcClient, FALSE, FALSE, FALSE);
 
+	AfxBeginThread(NetWorkerThreadFunc, (void*)this);
+	//NetWorkerThreadFunc((void*)this);
 	return TRUE;
 }
 
