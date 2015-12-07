@@ -48,9 +48,9 @@
 #define IDD_DIALOG_DIR_FAVIOURITE       171
 #define IDD_DIALOG_ADD_TO_FAVORITE      172
 #define IDB_PNG1                        173
-#define IDI_ICON1                       175
 #define IDI_ICON_NET_CLIPBOARD          175
 #define IDB_BITMAP4                     176
+#define IDD_DIALOG_NETWORK              177
 #define IDC_BUTTON_TEST                 1000
 #define IDC_COMBO_DIR                   1000
 #define IDC_EDIT_TITLE                  1001
@@ -62,6 +62,7 @@
 #define IDC_BUTTON1                     1004
 #define IDC_BUTTON_EXPORT               1004
 #define IDC_EDIT_SEARCH                 1004
+#define IDC_BUTTON_GET_DATA             1004
 #define IDC_LIST_FILE                   1005
 #define IDC_LIST_LAYOUT                 1005
 #define IDC_STATIC_STATISTICS           1006
@@ -81,6 +82,8 @@
 #define IDC_COMBO_GROUP                 1016
 #define IDC_STATIC_NAME                 1017
 #define IDC_EDIT_NAME                   1018
+#define IDC_LIST_MACHINE                1020
+#define IDC_EDIT_CLIPBOARD              1021
 #define ID_POPUP_SAVEAS                 32770
 #define ID_POPUP_ID                     32771
 #define ID_POPUP_DELETEALLSELECTEDROW   32772
@@ -101,9 +104,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        177
+#define _APS_NEXT_RESOURCE_VALUE        178
 #define _APS_NEXT_COMMAND_VALUE         32786
-#define _APS_NEXT_CONTROL_VALUE         1019
+#define _APS_NEXT_CONTROL_VALUE         1022
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

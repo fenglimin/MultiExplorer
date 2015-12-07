@@ -181,6 +181,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="NetworkOperationDialog.cpp" />
     <ClCompile Include="OperationDialog.cpp" />
     <ClCompile Include="SelectLayoutDialog.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -225,6 +226,7 @@
     <ClInclude Include="MultiExplorer.h" />
     <ClInclude Include="MultiExplorerDef.h" />
     <ClInclude Include="MultiExplorerDlg.h" />
+    <ClInclude Include="NetworkOperationDialog.h" />
     <ClInclude Include="OperationDialog.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectLayoutDialog.h" />

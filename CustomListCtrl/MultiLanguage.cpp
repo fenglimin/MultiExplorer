@@ -148,6 +148,31 @@ void CMultiLanguage::Init()
 	m_mapTranslate["Delete Dir [%s]"] = "删除目录 [%s]";
 	m_mapTranslate["Rename Dir [%s]"] = "重命名目录 [%s]";
 	m_mapTranslate["Are you sure to delete this %s?"] = "确定要删除这个%s吗？";
+
+	// Menu
+	m_mapTranslate["Copy"] = "拷贝";
+	m_mapTranslate["Delete All Selected Items"] = "删除所有选中的行";
+	m_mapTranslate["Insert Item Before This Row"] = "插入一行数据";
+	m_mapTranslate["Append Item To Bottom"] = "增加一行数据（在最后面）";
+	m_mapTranslate["Move Top"] = "移到顶端";
+	m_mapTranslate["Move Up"] = "上移";
+	m_mapTranslate["Move Down"] = "下移";
+	m_mapTranslate["Move Bottom"] = "移到末端";
+	m_mapTranslate["Select All"] = "全选";
+	m_mapTranslate["Select None"] = "全不选";
+	m_mapTranslate["Delete All Selected Users"] = "删除用户";
+	m_mapTranslate["New User"] = "增加用户";
+	m_mapTranslate["Delete All Selected Columns"] = "删除所有选中的列";
+	m_mapTranslate["Insert Column"] = "插入一个列";
+	m_mapTranslate["Append Column"] = "添加一个列（在最后面）";
+	m_mapTranslate["Save"] = "保存";
+
+	// Network Clipboard
+	m_mapTranslate["Network Clipboard"] = "网络剪贴板";
+	m_mapTranslate["Ip Address"] = "IP地址";
+	m_mapTranslate["Port"] = "端口";
+	m_mapTranslate["Get Clipboard Data"] = "获取剪贴板内容";
+
 }
 
 void CMultiLanguage::Clear()
