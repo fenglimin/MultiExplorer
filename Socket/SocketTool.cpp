@@ -157,21 +157,14 @@ BOOL CSocketTool::RecvStrValue(CString& strValue)
 	if (!RecvIntValue(nBufferLen))
 		return FALSE;
 
-	char szBuffer[MAX_TRANS_UNIT];
-
-	int nTotalRecv = 0;
-	while (nTotalRecv < nBufferLen)
+	int nIndex = 0;
+	char* pBuffer = new char[nBufferLen + 1];
+	while ( nBufferLen > 0)
 	{
-		lstrcpy(szBuffer, "");
-
-		int nTryToRecv = MAX_TRANS_UNIT;
-		if (nBufferLen - nTotalRecv < MAX_TRANS_UNIT)
-			nTryToRecv = nBufferLen - nTotalRecv;
-
 		if (IsSocketBlock(TRUE, m_socketWork))
 			return FALSE;
 
-		int nRecved = recv(m_socketWork, szBuffer, nTryToRecv, 0);
+		int nRecved = recv(m_socketWork, &pBuffer[nIndex], nBufferLen, 0);
 		if (nRecved == SOCKET_ERROR)
 		{
 			CloseSocket();
@@ -179,11 +172,14 @@ BOOL CSocketTool::RecvStrValue(CString& strValue)
 			return FALSE;
 		}
 
-		nTotalRecv += nRecved;
-		strValue += szBuffer;
+		nIndex += nRecved;
+		nBufferLen -= nRecved;
 	}
 
-	strValue = strValue.Left(nTotalRecv);
+	pBuffer[nIndex] = '\0';
+	strValue = pBuffer;
+
+	delete[] pBuffer;
 	return TRUE;
 }
 
