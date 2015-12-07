@@ -80,7 +80,7 @@ BOOL CNetworkOperationDialog::OnInitDialog()
 	m_listMachine.m_defaultListFormat.cellType = cellTextEdit;
 	
 	int nRow = m_listMachine.AppendEmptyRow();
-	m_listMachine.SetCell(nRow, 0, "10.112.13.203");
+	m_listMachine.SetCell(nRow, 0, "127.0.0.1");
 	m_listMachine.SetCell(nRow, 1, "1229");
 
 	SetUIText();
