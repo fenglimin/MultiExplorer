@@ -316,13 +316,6 @@ IDB_BITMAP_3_2          BITMAP                  "res\\bmp00011.bmp"
 IDB_BITMAP_3_3          BITMAP                  "res\\bmp00012.bmp"
 IDB_BITMAP_3_4          BITMAP                  "res\\bmp00013.bmp"
 IDB_BITMAP4             BITMAP                  "res\\bmp00014.bmp"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// PNG
-//
-
-
 #endif    // Chinese (Simplified, PRC) resources
 /////////////////////////////////////////////////////////////////////////////
 

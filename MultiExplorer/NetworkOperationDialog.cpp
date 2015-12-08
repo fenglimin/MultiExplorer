@@ -9,6 +9,37 @@
 
 // CNetworkOperationDialog dialog
 
+static UINT GetClipboardDataThreadFunc(LPVOID pParam)
+{
+	CNetworkOperationDialog* pDlg = (CNetworkOperationDialog*)pParam;
+
+	CMenu* mnu = pDlg->GetSystemMenu(FALSE);
+	mnu->EnableMenuItem(SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+	pDlg->GetDlgItem(IDOK)->EnableWindow(FALSE);
+	pDlg->GetDlgItem(IDC_BUTTON_GET_DATA)->EnableWindow(FALSE);
+
+	CString strIp = pDlg->m_listMachine.GetItemText(pDlg->m_nRow, 0);
+	CString strPort = pDlg->m_listMachine.GetItemText(pDlg->m_nRow, 1);
+	int nPort = atoi(strPort);
+
+	CString strMsg;
+	strMsg.Format(_M("%s Getting clipboard from %s ......\r\n\r\n"), pDlg->GetCurrentFormattedTime(FALSE), strIp);
+	pDlg->SetDlgItemText(IDC_EDIT_CLIPBOARD, strMsg);
+
+	CString strData;
+	if (!pDlg->m_pDiskFileManager->m_workTool.Request_GetClipboardData(strIp, nPort, strData))
+		strData = pDlg->GetCurrentFormattedTime(FALSE) + " " + strData;
+
+	pDlg->SetDlgItemText(IDC_EDIT_CLIPBOARD, strMsg + strData + "\r\n\r\n" + pDlg->GetCurrentFormattedTime(FALSE) + " " + _M("Get clipboard ended!"));
+
+	mnu->EnableMenuItem(SC_CLOSE, MF_BYCOMMAND);
+	pDlg->GetDlgItem(IDOK)->EnableWindow(TRUE);
+	pDlg->GetDlgItem(IDC_BUTTON_GET_DATA)->EnableWindow(TRUE);
+
+	return 0;
+}
+
+
 IMPLEMENT_DYNAMIC(CNetworkOperationDialog, CDialog)
 
 CNetworkOperationDialog::CNetworkOperationDialog(CDiskFileManager* pDiskFileManager, CWnd* pParent /*=NULL*/)
@@ -113,19 +144,9 @@ void CNetworkOperationDialog::OnBnClickedButtonGetData()
 		return;
 	}
 
-	CString strIp = m_listMachine.GetItemText(nRow, 0);
-	CString strPort = m_listMachine.GetItemText(nRow, 1);
-	int nPort = atoi(strPort);
+	m_nRow = nRow;
 
-	CString strMsg;
-	strMsg.Format(_M("%s Getting clipboard from %s ......\r\n\r\n"), GetCurrentFormattedTime(FALSE), strIp);
-	SetDlgItemText(IDC_EDIT_CLIPBOARD, strMsg);
-	
-	CString strData;
-	if (!m_pDiskFileManager->m_workTool.Request_GetClipboardData(strIp, nPort, strData))
-		strData = GetCurrentFormattedTime(FALSE) + " " + strData;
-
-	SetDlgItemText(IDC_EDIT_CLIPBOARD, strMsg + strData + "\r\n\r\n" + GetCurrentFormattedTime(FALSE) + " " + _M("Get clipboard ended!"));
+	AfxBeginThread(GetClipboardDataThreadFunc, (void*)this);
 }
 
 

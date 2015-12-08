@@ -13,6 +13,12 @@ public:
 	CNetworkOperationDialog(CDiskFileManager* pDiskFileManager, CWnd* pParent = NULL);   // standard constructor
 	virtual ~CNetworkOperationDialog();
 
+	CString GetCurrentFormattedTime(BOOL bForFileName);
+
+	CCustomListCtrl m_listMachine;
+	CDiskFileManager* m_pDiskFileManager;
+	int m_nRow;
+
 // Dialog Data
 	enum { IDD = IDD_DIALOG_NETWORK };
 
@@ -21,10 +27,9 @@ protected:
 	virtual BOOL OnInitDialog();
 	virtual BOOL OnRowLDblClicked(CListCtrl* pListCtrl, int nRow, int nCol, UINT nFlags, CPoint point);
 
-	CString GetCurrentFormattedTime(BOOL bForFileName);
+	
 
-	CCustomListCtrl m_listMachine;
-	CDiskFileManager* m_pDiskFileManager;
+
 
 	void SetUIText();
 	DECLARE_MESSAGE_MAP()
