@@ -86,8 +86,10 @@
 #define IDC_EDIT_CLIPBOARD              1021
 #define IDC_STATIC_LOCAL_PORT           1022
 #define IDC_STATIC_REMOTE_MACHINE       1023
-#define IDC_EDIT1                       1024
 #define IDC_EDIT_LOCAL_PORT             1024
+#define IDC_CHECK_UNICODE               1025
+#define IDC_CHECK_UNICODE2              1026
+#define IDC_CHECK_APPEND_MESSAGE        1026
 #define ID_POPUP_SAVEAS                 32770
 #define ID_POPUP_ID                     32771
 #define ID_POPUP_DELETEALLSELECTEDROW   32772
@@ -110,7 +112,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        178
 #define _APS_NEXT_COMMAND_VALUE         32786
-#define _APS_NEXT_CONTROL_VALUE         1025
+#define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

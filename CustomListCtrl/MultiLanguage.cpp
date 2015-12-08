@@ -182,6 +182,8 @@ void CMultiLanguage::Init()
 	m_mapTranslate["Listening Port"] = "本地监听端口";
 	m_mapTranslate["Remote Machine"] = "远端机器";
 	m_mapTranslate["Listening port was modified, please save the changes and restart application."] = "端口已更改，请保存更改并重启应用。";
+	m_mapTranslate["Use Unicode"] = "使用Unicode格式";
+	m_mapTranslate["Append Message"] = "附加消息";
 }
 
 void CMultiLanguage::Clear()

@@ -1225,6 +1225,8 @@ BOOL CDiskFileManager::LoadIniFile(CString strFileName, BOOL bEncrypt)
 	// Load local listening port and Remote Machine
 	if (!m_iniFile.GetValue("Network", "LocalListeningPort", m_userOption.nLocalListeningPort))
 		m_userOption.nLocalListeningPort = 1229;
+	m_iniFile.GetValue("Network", "ClipboardUnicode", m_userOption.bClipboardUnicode);
+	m_iniFile.GetValue("Network", "AppendMessage", m_userOption.bAppendMessage);
 
 	int nRemoteMachineCount = 0;
 	m_iniFile.GetValue("Network", "RemoteMachineCount", nRemoteMachineCount);
@@ -1358,6 +1360,8 @@ BOOL CDiskFileManager::ExportIniFile(const CString& strFileName, BOOL bEncrypt)
 
 	// Export local listening port and Remote Machine
 	m_iniFile.SetValue("Network", "LocalListeningPort", m_userOption.nLocalListeningPort);
+	m_iniFile.SetValue("Network", "ClipboardUnicode", m_userOption.bClipboardUnicode);
+	m_iniFile.SetValue("Network", "AppendMessage", m_userOption.bAppendMessage);
 
 	int nRemoteMachineCount = m_userOption.vecRemoteMachine.size();
 	m_iniFile.SetValue("Network", "RemoteMachineCount", nRemoteMachineCount);

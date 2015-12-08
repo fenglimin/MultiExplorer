@@ -21,7 +21,7 @@ public:
 	BOOL PendingRead();
 	BOOL StartWorking ( int nPort );
 
-	BOOL Request_GetClipboardData(CString strIp, int nPort, CString& strOutput);
+	BOOL Request_GetClipboardData(CString strIp, int nPort, int nFormat, CString& strOutput);
 	BOOL Response_GetClipboardData();
 };
 

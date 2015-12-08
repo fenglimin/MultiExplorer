@@ -116,7 +116,7 @@ BOOL CWorkTool::NetPeek_SendFile()
 	return m_socketTool.SendFile(strFileFullName);
 }
 
-BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, CString& strOutput)
+BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, CString& strOutput)
 {
 	CSocketTool socketTool;
 
@@ -129,6 +129,12 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, CString& strO
 	if (!socketTool.SendIntValue(NETWORK_GET_CLIPBOARD_DATA))
 	{
 		strOutput.Format(_M("Send command(%s) failed!"), "NETWORK_GET_CLIPBOARD_DATA");
+		return FALSE;
+	}
+
+	if (!socketTool.SendIntValue(nFormat))
+	{
+		strOutput.Format(_M("Send clipboard format failed!"));
 		return FALSE;
 	}
 
@@ -149,13 +155,33 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, CString& strO
 
 BOOL CWorkTool::Response_GetClipboardData()
 {
+	int nFormat = CF_TEXT;
+	m_socketTool.RecvIntValue(nFormat);
+
 	CString strData;
-	if (::OpenClipboard(NULL)) {
-		HANDLE hData = ::GetClipboardData(CF_TEXT);
-		if (hData != NULL) {
-			strData = (LPCSTR) ::GlobalLock(hData);
-			::GlobalUnlock(hData);
+	if (::OpenClipboard(NULL))
+	{
+		if ( nFormat == CF_TEXT && ::IsClipboardFormatAvailable(CF_TEXT))
+		{
+			HANDLE hData = ::GetClipboardData(CF_TEXT);
+			if (hData != NULL)
+			{
+				strData = (LPCSTR) ::GlobalLock(hData);
+				::GlobalUnlock(hData);
+			}
 		}
+		else if (nFormat == CF_UNICODETEXT && ::IsClipboardFormatAvailable(CF_UNICODETEXT))
+		{
+			HANDLE hData = ::GetClipboardData(CF_UNICODETEXT);
+			if (hData != NULL)
+			{
+				WCHAR* pWchar = (WCHAR*) ::GlobalLock(hData);
+				::GlobalUnlock(hData);
+
+				strData = CString(pWchar);
+			}
+		}
+
 		::CloseClipboard();
 	}
 

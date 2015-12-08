@@ -27,7 +27,8 @@ static UINT GetClipboardDataThreadFunc(LPVOID pParam)
 	pDlg->SetDlgItemText(IDC_EDIT_CLIPBOARD, strMsg);
 
 	CString strData;
-	if (!pDlg->m_pDiskFileManager->m_workTool.Request_GetClipboardData(strIp, nPort, strData))
+	int nFormat = pDlg->m_pDiskFileManager->m_userOption.bClipboardUnicode ? CF_UNICODETEXT : CF_TEXT;
+	if (!pDlg->m_pDiskFileManager->m_workTool.Request_GetClipboardData(strIp, nPort, nFormat, strData))
 		strData = pDlg->GetCurrentFormattedTime(FALSE) + " " + strData;
 
 	pDlg->SetDlgItemText(IDC_EDIT_CLIPBOARD, strMsg + strData + "\r\n\r\n" + pDlg->GetCurrentFormattedTime(FALSE) + " " + _M("Get clipboard ended!"));
@@ -129,6 +130,8 @@ void CNetworkOperationDialog::SetUIText()
 	SetDlgItemText(IDC_BUTTON_GET_DATA, _M("Get Clipboard Data"));
 	SetDlgItemText(IDC_STATIC_LOCAL_PORT, _M("Listening Port"));
 	SetDlgItemText(IDC_STATIC_REMOTE_MACHINE, _M("Remote Machine"));
+	SetDlgItemText(IDC_CHECK_UNICODE, _M("Use Unicode"));
+	SetDlgItemText(IDC_CHECK_APPEND_MESSAGE, _M("Append Message"));
 
 	SetWindowText(_M("Network Clipboard"));
 }
@@ -145,6 +148,8 @@ void CNetworkOperationDialog::OnBnClickedButtonGetData()
 	}
 
 	m_nRow = nRow;
+	m_pDiskFileManager->m_userOption.bClipboardUnicode = IsDlgButtonChecked(IDC_CHECK_UNICODE);
+	m_pDiskFileManager->m_userOption.bAppendMessage = IsDlgButtonChecked(IDC_CHECK_APPEND_MESSAGE);
 
 	AfxBeginThread(GetClipboardDataThreadFunc, (void*)this);
 }
@@ -193,6 +198,8 @@ void CNetworkOperationDialog::LoadConfig()
 	}
 
 	SetDlgItemInt(IDC_EDIT_LOCAL_PORT, m_pDiskFileManager->m_userOption.nLocalListeningPort);
+	((CButton*)GetDlgItem(IDC_CHECK_UNICODE))->SetCheck(m_pDiskFileManager->m_userOption.bClipboardUnicode);
+	((CButton*)GetDlgItem(IDC_CHECK_APPEND_MESSAGE))->SetCheck(m_pDiskFileManager->m_userOption.bAppendMessage);
 }
 
 void CNetworkOperationDialog::SaveConfig()
@@ -216,4 +223,7 @@ void CNetworkOperationDialog::SaveConfig()
 		m_pDiskFileManager->m_userOption.nLocalListeningPort = nPort;
 		m_bPortChanged = TRUE;
 	}
+
+	m_pDiskFileManager->m_userOption.bClipboardUnicode = IsDlgButtonChecked(IDC_CHECK_UNICODE);
+	m_pDiskFileManager->m_userOption.bAppendMessage = IsDlgButtonChecked(IDC_CHECK_APPEND_MESSAGE);
 }

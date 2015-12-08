@@ -73,6 +73,8 @@ struct UserOptions
 	int			nDirTreeDlgWidth;
 
 	int			nLocalListeningPort;
+	BOOL		bClipboardUnicode;
+	BOOL		bAppendMessage;
 	vector<RemoteMachine> vecRemoteMachine;
 
 	UserOptions()
