@@ -178,6 +178,7 @@ void CMultiLanguage::Init()
 	m_mapTranslate["Can Not connect to server, ip address : %s, Port : %d."] = "无法连接到远端机器，IP地址 : %s, 端口 ： %d。";
 	m_mapTranslate["Send command(%s) failed!"] = "发送命令 ( %s )失败！";
 	m_mapTranslate["Received clipboard failed!"] = "接收剪贴板数据失败！";
+	m_mapTranslate["Can NOT start net listener with port %d, please check!"] = "无法启动监听端口%d，请检查！";
 }
 
 void CMultiLanguage::Clear()
