@@ -108,13 +108,39 @@ void CNetworkOperationDialog::OnBnClickedButtonGetData()
 	int nRow = m_listMachine.GetNextSelectedItem(pos);
 
 	if (nRow == -1)
+	{
+		SetDlgItemText(IDC_EDIT_CLIPBOARD, GetCurrentFormattedTime(FALSE) + " " + _M("Please select a machine!"));
 		return;
+	}
 
 	CString strIp = m_listMachine.GetItemText(nRow, 0);
 	CString strPort = m_listMachine.GetItemText(nRow, 1);
 	int nPort = atoi(strPort);
-	CString strData;
-	m_pDiskFileManager->m_workTool.Request_GetClipboardData(strIp, nPort, strData);
 
-	SetDlgItemText(IDC_EDIT_CLIPBOARD, strData);
+	CString strMsg;
+	strMsg.Format(_M("%s Getting clipboard from %s ......\r\n\r\n"), GetCurrentFormattedTime(FALSE), strIp);
+	SetDlgItemText(IDC_EDIT_CLIPBOARD, strMsg);
+	
+	CString strData;
+	if (!m_pDiskFileManager->m_workTool.Request_GetClipboardData(strIp, nPort, strData))
+		strData = GetCurrentFormattedTime(FALSE) + " " + strData;
+
+	SetDlgItemText(IDC_EDIT_CLIPBOARD, strMsg + strData + "\r\n\r\n" + GetCurrentFormattedTime(FALSE) + " " + _M("Get clipboard ended!"));
+}
+
+
+CString CNetworkOperationDialog::GetCurrentFormattedTime(BOOL bForFileName)
+{
+	CString strFormat = "%04d-%02d-%02d %02d-%02d-%02d";
+	if (!bForFileName)
+	{
+		strFormat = "%04d-%02d-%02d %02d:%02d:%02d";
+	}
+
+	COleDateTime dt = COleDateTime::GetCurrentTime();
+	CString strRet;
+	strRet.Format(strFormat, dt.GetYear(), dt.GetMonth(), dt.GetDay(),
+		dt.GetHour(), dt.GetMinute(), dt.GetSecond());
+
+	return strRet;
 }

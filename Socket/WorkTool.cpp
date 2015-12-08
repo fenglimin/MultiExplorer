@@ -126,11 +126,23 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, CString& strO
 		return FALSE;
 	}
 
-	socketTool.SendIntValue(NETWORK_GET_CLIPBOARD_DATA);
+	if (!socketTool.SendIntValue(NETWORK_GET_CLIPBOARD_DATA))
+	{
+		strOutput.Format(_M("Send command(%s) failed!"), "NETWORK_GET_CLIPBOARD_DATA");
+		return FALSE;
+	}
 
-	socketTool.RecvStrValue(strOutput);
+	if (!socketTool.RecvStrValue(strOutput))
+	{
+		strOutput.Format(_M("Received clipboard failed!"));
+		return FALSE;
+	}
 
-	socketTool.SendIntValue(NETWORK_TASK_END);
+	if (!socketTool.SendIntValue(NETWORK_TASK_END))
+	{
+		strOutput.Format(_M("Send command(%s) failed!"), "NETWORK_TASK_END");
+		return FALSE;
+	}
 
 	return TRUE;
 }

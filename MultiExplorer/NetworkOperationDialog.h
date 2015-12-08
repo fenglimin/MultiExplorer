@@ -21,6 +21,8 @@ protected:
 	virtual BOOL OnInitDialog();
 	virtual BOOL OnRowLDblClicked(CListCtrl* pListCtrl, int nRow, int nCol, UINT nFlags, CPoint point);
 
+	CString GetCurrentFormattedTime(BOOL bForFileName);
+
 	CCustomListCtrl m_listMachine;
 	CDiskFileManager* m_pDiskFileManager;
 
