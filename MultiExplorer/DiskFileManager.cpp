@@ -1086,7 +1086,8 @@ BOOL CDiskFileManager::Init(CWnd* pUserWnd)
 
 void CDiskFileManager::StartNetWorkerThread()
 {
-	AfxBeginThread(NetWorkerThreadFunc, (void*)this);
+	if (m_userOption.nLocalListeningPort != -1)
+		AfxBeginThread(NetWorkerThreadFunc, (void*)this);
 }
 
 BOOL CDiskFileManager::LoadIniFile(CString strFileName, BOOL bEncrypt)
@@ -2854,6 +2855,8 @@ BOOL CDiskFileManager::StartNewMultiExplorer( const CString& strDir )
 
 	strKey = strTemp + _T(".SortAscending");
 	m_iniFile.SetValue( "Explorers", (const char*)strKey, 1 );
+
+	m_iniFile.SetValue("Network", "LocalListeningPort", -1);
 
 	m_iniFile.Write(strIniFile, FALSE);
 
