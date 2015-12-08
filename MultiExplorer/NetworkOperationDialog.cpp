@@ -22,6 +22,9 @@ static UINT GetClipboardDataThreadFunc(LPVOID pParam)
 	CString strPort = pDlg->m_listMachine.GetItemText(pDlg->m_nRow, 1);
 	int nPort = atoi(strPort);
 
+	CEdit* pEdit = (CEdit*)pDlg->GetDlgItem(IDC_EDIT_CLIPBOARD);
+	int nLineCount = pDlg->m_pDiskFileManager->m_userOption.bAppendMessage ? pEdit->GetLineCount() : 0;
+
 	if (pDlg->m_pDiskFileManager->m_userOption.bAppendMessage)
 		pDlg->AppendMessage("------------------------------------------------------------------------------------------", FALSE, FALSE, FALSE);
 	CString strMsg;
@@ -36,7 +39,8 @@ static UINT GetClipboardDataThreadFunc(LPVOID pParam)
 	pDlg->AppendMessage(_M("Get clipboard ended!"), FALSE, TRUE, FALSE);
 	if (pDlg->m_pDiskFileManager->m_userOption.bAppendMessage)
 		pDlg->AppendMessage("------------------------------------------------------------------------------------------", FALSE, FALSE, TRUE);
-
+	
+	pEdit->LineScroll(nLineCount);
 
 	mnu->EnableMenuItem(SC_CLOSE, MF_BYCOMMAND);
 	pDlg->GetDlgItem(IDOK)->EnableWindow(TRUE);
@@ -130,7 +134,7 @@ BOOL CNetworkOperationDialog::OnRowLDblClicked(CListCtrl* pListCtrl, int nRow, i
 
 void CNetworkOperationDialog::SetUIText()
 {
-	SetDlgItemText(IDOK, _M("OK"));
+	SetDlgItemText(IDOK, _M("Exit"));
 	SetDlgItemText(IDCANCEL, _M("Cancel"));
 	SetDlgItemText(IDC_BUTTON_GET_DATA, _M("Get Clipboard Data"));
 	SetDlgItemText(IDC_STATIC_LOCAL_PORT, _M("Listening Port"));
@@ -254,7 +258,4 @@ void CNetworkOperationDialog::AppendMessage(CString strMessage, BOOL bCleanFirst
 		strExsitingMessage += "\r\n";
 
 	SetDlgItemText(IDC_EDIT_CLIPBOARD, strExsitingMessage);
-
-	CEdit* pEdit = (CEdit*)GetDlgItem(IDC_EDIT_CLIPBOARD);
-	pEdit->SetScrollPos(SB_VERT, pEdit->GetScrollLimit(SB_VERT));
 }
