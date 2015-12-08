@@ -42,6 +42,7 @@ public:
 	CString				m_strDefaultIniFile;
 	CWorkTool			m_workTool;
 
+	void StartNetWorkerThread();
 	void ShowDirInActiveFileExplorer(const CString& strDir);
 	BOOL StartNewMultiExplorer(const CString& strDir);
 	void SetFileExplorerBackground(CFileExplorer* pFileExplorer, BOOL bActive);

@@ -179,6 +179,9 @@ void CMultiLanguage::Init()
 	m_mapTranslate["Send command(%s) failed!"] = "发送命令 ( %s )失败！";
 	m_mapTranslate["Received clipboard failed!"] = "接收剪贴板数据失败！";
 	m_mapTranslate["Can NOT start net listener with port %d, please check!"] = "无法启动监听端口%d，请检查！";
+	m_mapTranslate["Listening Port"] = "本地监听端口";
+	m_mapTranslate["Remote Machine"] = "远端机器";
+	m_mapTranslate["Listening port was modified, please save the changes and restart application."] = "端口已更改，请保存更改并重启应用。";
 }
 
 void CMultiLanguage::Clear()

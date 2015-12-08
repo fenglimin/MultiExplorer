@@ -94,11 +94,13 @@ void CToolbarDialog::OnButtonClick( UINT uID )
 
 	if (uID == MAX_BUTTON_COUNT)
 	{
-		//CString strData;
-		//m_pDiskFileManager->m_workTool.Request_GetClipboardData("10.112.13.203", 1229, strData);
-		//AfxMessageBox(strData);
 		CNetworkOperationDialog dlg(m_pDiskFileManager);
 		dlg.DoModal();
+		if (dlg.m_bPortChanged)
+		{
+			AfxMessageBox(_M("Listening port was modified, please save the changes and restart application."));
+		}
+		return;
 	}
 
 	CheckClick(m_listQuickLaunchButtons, uID);

@@ -18,6 +18,7 @@ public:
 	CCustomListCtrl m_listMachine;
 	CDiskFileManager* m_pDiskFileManager;
 	int m_nRow;
+	BOOL m_bPortChanged;
 
 // Dialog Data
 	enum { IDD = IDD_DIALOG_NETWORK };
@@ -27,7 +28,8 @@ protected:
 	virtual BOOL OnInitDialog();
 	virtual BOOL OnRowLDblClicked(CListCtrl* pListCtrl, int nRow, int nCol, UINT nFlags, CPoint point);
 
-	
+	void SaveConfig();
+	void LoadConfig();
 
 
 
@@ -35,4 +37,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButtonGetData();
+	afx_msg void OnClose();
+	afx_msg void OnBnClickedOk();
 };

@@ -46,6 +46,7 @@ CNetworkOperationDialog::CNetworkOperationDialog(CDiskFileManager* pDiskFileMana
 	: CDialog(CNetworkOperationDialog::IDD, pParent)
 {
 	m_pDiskFileManager = pDiskFileManager;
+	m_bPortChanged = FALSE;
 }
 
 CNetworkOperationDialog::~CNetworkOperationDialog()
@@ -61,6 +62,8 @@ void CNetworkOperationDialog::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CNetworkOperationDialog, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_GET_DATA, &CNetworkOperationDialog::OnBnClickedButtonGetData)
+	ON_WM_CLOSE()
+	ON_BN_CLICKED(IDOK, &CNetworkOperationDialog::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
@@ -88,12 +91,12 @@ BOOL CNetworkOperationDialog::OnInitDialog()
 	m_listMachine.SetColumnInfo(gridColumnsList, strColumnOrder);
 
 	// Set Row Bk Color
-	m_listMachine.AddDefaultRowColor(RGB(239, 239, 239));
-	m_listMachine.AddDefaultRowColor(RGB(229, 229, 229));
+	m_listMachine.AddDefaultRowColor(m_pDiskFileManager->m_userOption.strEvenLineBKColorActive);
+	m_listMachine.AddDefaultRowColor(m_pDiskFileManager->m_userOption.strOddLineBKColorActive);
 
 	// Height
-	m_listMachine.SetHeaderHeight(24);
-	m_listMachine.SetRowHeigt(24);
+	m_listMachine.SetHeaderHeight(m_pDiskFileManager->m_userOption.nRowHeight);
+	m_listMachine.SetRowHeigt(m_pDiskFileManager->m_userOption.nRowHeight);
 
 	m_listMachine.EnableFilter(FALSE);
 	m_listMachine.EnableSort(FALSE);
@@ -104,16 +107,10 @@ BOOL CNetworkOperationDialog::OnInitDialog()
 	m_listMachine.SetEditNextCellAfterReturnIsHit(TRUE);
 	m_listMachine.SetEditFirstCellAfterNewRowIsAdded(TRUE);
 	m_listMachine.SetEnablePopupMenu(TRUE);
-
 	m_listMachine.SetUser(this);
-
-
 	m_listMachine.m_defaultListFormat.cellType = cellTextEdit;
 	
-	int nRow = m_listMachine.AppendEmptyRow();
-	m_listMachine.SetCell(nRow, 0, "127.0.0.1");
-	m_listMachine.SetCell(nRow, 1, "1229");
-
+	LoadConfig();
 	SetUIText();
 
 	return TRUE;
@@ -130,6 +127,9 @@ void CNetworkOperationDialog::SetUIText()
 	SetDlgItemText(IDOK, _M("OK"));
 	SetDlgItemText(IDCANCEL, _M("Cancel"));
 	SetDlgItemText(IDC_BUTTON_GET_DATA, _M("Get Clipboard Data"));
+	SetDlgItemText(IDC_STATIC_LOCAL_PORT, _M("Listening Port"));
+	SetDlgItemText(IDC_STATIC_REMOTE_MACHINE, _M("Remote Machine"));
+
 	SetWindowText(_M("Network Clipboard"));
 }
 
@@ -164,4 +164,56 @@ CString CNetworkOperationDialog::GetCurrentFormattedTime(BOOL bForFileName)
 		dt.GetHour(), dt.GetMinute(), dt.GetSecond());
 
 	return strRet;
+}
+
+void CNetworkOperationDialog::OnClose()
+{
+	SaveConfig();
+	__super::OnClose();
+}
+
+
+void CNetworkOperationDialog::OnBnClickedOk()
+{
+	SaveConfig();
+	__super::OnOK();
+}
+
+void CNetworkOperationDialog::LoadConfig()
+{
+	CString strPort;
+	for (int i = 0; i < (int)m_pDiskFileManager->m_userOption.vecRemoteMachine.size(); i++)
+	{
+		RemoteMachine remoteMachine = m_pDiskFileManager->m_userOption.vecRemoteMachine[i];
+		int nRow = m_listMachine.AppendEmptyRow();
+		m_listMachine.SetCell(nRow, 0, remoteMachine.strIpAddress);
+
+		strPort.Format("%d", remoteMachine.nPort);
+		m_listMachine.SetCell(nRow, 1, strPort);
+	}
+
+	SetDlgItemInt(IDC_EDIT_LOCAL_PORT, m_pDiskFileManager->m_userOption.nLocalListeningPort);
+}
+
+void CNetworkOperationDialog::SaveConfig()
+{
+	CString strPort;
+	m_pDiskFileManager->m_userOption.vecRemoteMachine.clear();
+
+	for (int i = 0; i < m_listMachine.GetItemCount(); i++)
+	{
+		RemoteMachine remoteMachine;
+
+		remoteMachine.strIpAddress = m_listMachine.GetItemText(i, 0);
+		remoteMachine.nPort = atoi(m_listMachine.GetItemText(i, 1));
+
+		m_pDiskFileManager->m_userOption.vecRemoteMachine.push_back(remoteMachine);
+	}
+
+	int nPort = GetDlgItemInt(IDC_EDIT_LOCAL_PORT);
+	if (nPort != m_pDiskFileManager->m_userOption.nLocalListeningPort)
+	{
+		m_pDiskFileManager->m_userOption.nLocalListeningPort = nPort;
+		m_bPortChanged = TRUE;
+	}
 }

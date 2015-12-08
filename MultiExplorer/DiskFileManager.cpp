@@ -9,10 +9,10 @@ static UINT NetWorkerThreadFunc(LPVOID pParam)
 {
 	CDiskFileManager* pDiskFileManager = (CDiskFileManager*)pParam;
 
-	if (!pDiskFileManager->m_workTool.StartWorking(1229))
+	if (!pDiskFileManager->m_workTool.StartWorking(pDiskFileManager->m_userOption.nLocalListeningPort))
 	{
 		CString strShow;
-		strShow.Format(_M("Can NOT start net listener with port %d, please check!"), 1229);
+		strShow.Format(_M("Can NOT start net listener with port %d, please check!"), pDiskFileManager->m_userOption.nLocalListeningPort);
 		AfxMessageBox(strShow);
 	}
 	return 0;
@@ -1079,11 +1079,15 @@ BOOL CDiskFileManager::Init(CWnd* pUserWnd)
 	pUserWnd->GetClientRect(&rcClient);
 	Relayout(rcClient, FALSE, FALSE, FALSE);
 
-	AfxBeginThread(NetWorkerThreadFunc, (void*)this);
-	//NetWorkerThreadFunc((void*)this);
+	StartNetWorkerThread();
+
 	return TRUE;
 }
 
+void CDiskFileManager::StartNetWorkerThread()
+{
+	AfxBeginThread(NetWorkerThreadFunc, (void*)this);
+}
 
 BOOL CDiskFileManager::LoadIniFile(CString strFileName, BOOL bEncrypt)
 {
@@ -1218,6 +1222,28 @@ BOOL CDiskFileManager::LoadIniFile(CString strFileName, BOOL bEncrypt)
 		LoadQuickLaunchFromDesktop();
 	}
 
+	// Load local listening port and Remote Machine
+	if (!m_iniFile.GetValue("Network", "LocalListeningPort", m_userOption.nLocalListeningPort))
+		m_userOption.nLocalListeningPort = 1229;
+
+	int nRemoteMachineCount = 0;
+	m_iniFile.GetValue("Network", "RemoteMachineCount", nRemoteMachineCount);
+
+	for (int i = 1; i <= nRemoteMachineCount; i++)
+	{
+		RemoteMachine remoteMachine;
+
+		strTemp.Format(_T("RemoteMachine%02d"), i);
+
+		strKey = strTemp + _T(".IpAddress");
+		m_iniFile.GetValue("Network", (const char*)strKey, remoteMachine.strIpAddress);
+
+		strKey = strTemp + _T(".Port");
+		m_iniFile.GetValue("Network", (const char*)strKey, remoteMachine.nPort);
+
+		m_userOption.vecRemoteMachine.push_back(remoteMachine);
+	}
+
 	RebuildBitmapMap();
 
 	return TRUE;
@@ -1329,6 +1355,25 @@ BOOL CDiskFileManager::ExportIniFile(const CString& strFileName, BOOL bEncrypt)
 		hChild = m_faviouriteDirDialog.m_pDirTree->GetNextSiblingItem(hChild);
 	}
 	m_iniFile.SetValue ( "FavoriteDirectories", "FavoriteDirectoryCount", nFavoriteDirectoryCount );
+
+	// Export local listening port and Remote Machine
+	m_iniFile.SetValue("Network", "LocalListeningPort", m_userOption.nLocalListeningPort);
+
+	int nRemoteMachineCount = m_userOption.vecRemoteMachine.size();
+	m_iniFile.SetValue("Network", "RemoteMachineCount", nRemoteMachineCount);
+
+	for (int i = 0; i < nRemoteMachineCount; i++)
+	{
+		RemoteMachine remoteMachine = m_userOption.vecRemoteMachine[i];
+
+		strTemp.Format(_T("RemoteMachine%02d"), i+1);
+
+		strKey = strTemp + _T(".IpAddress");
+		m_iniFile.SetValue("Network", (const char*)strKey, remoteMachine.strIpAddress);
+
+		strKey = strTemp + _T(".Port");
+		m_iniFile.SetValue("Network", (const char*)strKey, remoteMachine.nPort);
+	}
 
 	m_iniFile.Write(strFileName, bEncrypt);
 

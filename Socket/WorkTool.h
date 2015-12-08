@@ -13,6 +13,7 @@ public:
 	~CWorkTool();
 
 	CSocketTool			m_socketTool;
+	BOOL		m_bExit;
 public:
 	BOOL NetPeek_SendFile();
 	BOOL NetPeek_RecvFile();

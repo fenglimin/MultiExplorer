@@ -6,7 +6,7 @@
 
 CWorkTool::CWorkTool()
 {
-
+	m_bExit = FALSE;
 }
 
 CWorkTool::~CWorkTool()
@@ -21,7 +21,7 @@ BOOL CWorkTool::StartWorking( int nPort )
 	if ( !m_socketTool.Init ( nPort ) )
 		return FALSE;
 
-	while ( TRUE )
+	while ( !m_bExit )
 	{
 		// Accept connecting
 		if ( !m_socketTool.PendingAccept() )

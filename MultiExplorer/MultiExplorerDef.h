@@ -41,6 +41,12 @@ struct CDiskFile
 	}
 };
 
+struct RemoteMachine
+{
+	CString			strIpAddress;
+	int				nPort;
+};
+
 struct UserOptions
 {
 	CString		strLanguage;
@@ -65,6 +71,9 @@ struct UserOptions
 
 	BOOL		bShowDirTree;
 	int			nDirTreeDlgWidth;
+
+	int			nLocalListeningPort;
+	vector<RemoteMachine> vecRemoteMachine;
 
 	UserOptions()
 	{
@@ -91,6 +100,7 @@ struct UserOptions
 		strOddLineBKColorInactive = _T("RGB(227,227,227)");
 		strEvenLineBKColorInactive = _T("RGB(200,200,200)");
 
+		vecRemoteMachine.clear();
 	}
 };
 
