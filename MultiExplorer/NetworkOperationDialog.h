@@ -14,6 +14,7 @@ public:
 	virtual ~CNetworkOperationDialog();
 
 	CString GetCurrentFormattedTime(BOOL bForFileName);
+	void AppendMessage(CString strMessage, BOOL bCleanFirst, BOOL bAddTimeStamp, BOOL bAppendEndline);
 
 	CCustomListCtrl m_listMachine;
 	CDiskFileManager* m_pDiskFileManager;

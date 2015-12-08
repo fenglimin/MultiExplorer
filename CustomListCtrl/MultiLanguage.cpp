@@ -173,7 +173,7 @@ void CMultiLanguage::Init()
 	m_mapTranslate["Port"] = "端口";
 	m_mapTranslate["Get Clipboard Data"] = "获取剪贴板内容";
 	m_mapTranslate["Please select a machine!"] = "请选择一台远端机器！";
-	m_mapTranslate["%s Getting clipboard from %s ......\r\n\r\n"] = "%s 正在从%s获取剪贴板数据......\r\n\r\n";
+	m_mapTranslate["Getting clipboard from %s ......"] = "正在从%s获取剪贴板数据......";
 	m_mapTranslate["Get clipboard ended!"] = "获取剪贴板数据结束！";
 	m_mapTranslate["Can Not connect to server, ip address : %s, Port : %d."] = "无法连接到远端机器，IP地址 : %s, 端口 ： %d。";
 	m_mapTranslate["Send command(%s) failed!"] = "发送命令 ( %s )失败！";

@@ -22,16 +22,21 @@ static UINT GetClipboardDataThreadFunc(LPVOID pParam)
 	CString strPort = pDlg->m_listMachine.GetItemText(pDlg->m_nRow, 1);
 	int nPort = atoi(strPort);
 
+	if (pDlg->m_pDiskFileManager->m_userOption.bAppendMessage)
+		pDlg->AppendMessage("------------------------------------------------------------------------------------------", FALSE, FALSE, FALSE);
 	CString strMsg;
-	strMsg.Format(_M("%s Getting clipboard from %s ......\r\n\r\n"), pDlg->GetCurrentFormattedTime(FALSE), strIp);
-	pDlg->SetDlgItemText(IDC_EDIT_CLIPBOARD, strMsg);
+	strMsg.Format(_M("Getting clipboard from %s ......"), strIp);
+	pDlg->AppendMessage(strMsg, !pDlg->m_pDiskFileManager->m_userOption.bAppendMessage, TRUE, TRUE);
 
 	CString strData;
 	int nFormat = pDlg->m_pDiskFileManager->m_userOption.bClipboardUnicode ? CF_UNICODETEXT : CF_TEXT;
-	if (!pDlg->m_pDiskFileManager->m_workTool.Request_GetClipboardData(strIp, nPort, nFormat, strData))
-		strData = pDlg->GetCurrentFormattedTime(FALSE) + " " + strData;
+	BOOL bOk = pDlg->m_pDiskFileManager->m_workTool.Request_GetClipboardData(strIp, nPort, nFormat, strData);
+	pDlg->AppendMessage(strData, FALSE, !bOk, TRUE);
 
-	pDlg->SetDlgItemText(IDC_EDIT_CLIPBOARD, strMsg + strData + "\r\n\r\n" + pDlg->GetCurrentFormattedTime(FALSE) + " " + _M("Get clipboard ended!"));
+	pDlg->AppendMessage(_M("Get clipboard ended!"), FALSE, TRUE, FALSE);
+	if (pDlg->m_pDiskFileManager->m_userOption.bAppendMessage)
+		pDlg->AppendMessage("------------------------------------------------------------------------------------------", FALSE, FALSE, TRUE);
+
 
 	mnu->EnableMenuItem(SC_CLOSE, MF_BYCOMMAND);
 	pDlg->GetDlgItem(IDOK)->EnableWindow(TRUE);
@@ -138,20 +143,20 @@ void CNetworkOperationDialog::SetUIText()
 
 void CNetworkOperationDialog::OnBnClickedButtonGetData()
 {
+	m_pDiskFileManager->m_userOption.bClipboardUnicode = IsDlgButtonChecked(IDC_CHECK_UNICODE);
+	m_pDiskFileManager->m_userOption.bAppendMessage = IsDlgButtonChecked(IDC_CHECK_APPEND_MESSAGE);
+
 	POSITION pos = m_listMachine.GetFirstSelectedItemPosition();
 	int nRow = m_listMachine.GetNextSelectedItem(pos);
 
 	if (nRow == -1)
 	{
-		SetDlgItemText(IDC_EDIT_CLIPBOARD, GetCurrentFormattedTime(FALSE) + " " + _M("Please select a machine!"));
+		AppendMessage(_M("Please select a machine!"), !m_pDiskFileManager->m_userOption.bAppendMessage, TRUE, TRUE);
 		return;
 	}
 
 	m_nRow = nRow;
-	m_pDiskFileManager->m_userOption.bClipboardUnicode = IsDlgButtonChecked(IDC_CHECK_UNICODE);
-	m_pDiskFileManager->m_userOption.bAppendMessage = IsDlgButtonChecked(IDC_CHECK_APPEND_MESSAGE);
-
-	AfxBeginThread(GetClipboardDataThreadFunc, (void*)this);
+ 	AfxBeginThread(GetClipboardDataThreadFunc, (void*)this);
 }
 
 
@@ -226,4 +231,30 @@ void CNetworkOperationDialog::SaveConfig()
 
 	m_pDiskFileManager->m_userOption.bClipboardUnicode = IsDlgButtonChecked(IDC_CHECK_UNICODE);
 	m_pDiskFileManager->m_userOption.bAppendMessage = IsDlgButtonChecked(IDC_CHECK_APPEND_MESSAGE);
+}
+
+void CNetworkOperationDialog::AppendMessage(CString strMessage, BOOL bCleanFirst, BOOL bAddTimeStamp, BOOL bAppendEndline)
+{
+	CString strExsitingMessage;
+	if (!bCleanFirst)
+		GetDlgItemText(IDC_EDIT_CLIPBOARD, strExsitingMessage);
+
+	if (strExsitingMessage.GetLength() != 0)
+		strExsitingMessage += "\r\n";
+
+	if (bAddTimeStamp)
+	{
+		strExsitingMessage += GetCurrentFormattedTime(FALSE);
+		strExsitingMessage += " ";
+	}
+
+	strExsitingMessage += strMessage;
+
+	if (bAppendEndline)
+		strExsitingMessage += "\r\n";
+
+	SetDlgItemText(IDC_EDIT_CLIPBOARD, strExsitingMessage);
+
+	CEdit* pEdit = (CEdit*)GetDlgItem(IDC_EDIT_CLIPBOARD);
+	pEdit->SetScrollPos(SB_VERT, pEdit->GetScrollLimit(SB_VERT));
 }
