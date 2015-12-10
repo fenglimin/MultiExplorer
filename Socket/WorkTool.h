@@ -6,20 +6,28 @@
 #define NETWORK_TASK_END						0
 #define NETWORK_GET_CLIPBOARD_DATA				1
 
+class IWorkToolUser
+{
+public:
+	virtual BOOL OnFileReceive(const CString& strFileName, BOOL bAddTimeStamp){ return TRUE; }
+};
+
 class CWorkTool
 {
 public:
-	CWorkTool();
+	CWorkTool(IWorkToolUser* pUser);
 	~CWorkTool();
 
-	CSocketTool			m_socketTool;
-	BOOL		m_bExit;
+	CSocketTool		m_socketTool;
+	BOOL			m_bExit;
+	IWorkToolUser*	m_pUser;
 public:
 	BOOL NetPeek_SendFile();
 	BOOL NetPeek_RecvFile();
 	BOOL NetPeek_Chatting();
 	BOOL PendingRead();
 	BOOL StartWorking ( int nPort );
+	void SetUser(IWorkToolUser* pUser) { m_pUser = pUser; }
 
 	BOOL Request_GetClipboardData(CString strIp, int nPort, int nFormat, CString& strOutput);
 	BOOL Response_GetClipboardData();

@@ -1,8 +1,7 @@
 #pragma once
 
-
-#include "..\Socket\WorkTool.h"
 #include "..\CustomListCtrl\CustomListCtrl.h"
+#include "..\Socket\WorkTool.h"
 #include "Ini.h"
 #include "CommonTool.h"
 #include "OperationDialog.h"
@@ -40,9 +39,10 @@ public:
 	CDirTreeDialog		m_dirTreeDialog;
 	CFavoriteDirDialog	m_faviouriteDirDialog;
 	CString				m_strDefaultIniFile;
-	CWorkTool			m_workTool;
+	CWorkTool* m_pWorkTool;
 
 	void StartNetWorkerThread();
+	void SetWorkToolUser(IWorkToolUser* pUser) { m_pWorkTool->SetUser(pUser); }
 	void ShowDirInActiveFileExplorer(const CString& strDir);
 	BOOL StartNewMultiExplorer(const CString& strDir);
 	void SetFileExplorerBackground(CFileExplorer* pFileExplorer, BOOL bActive);

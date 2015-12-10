@@ -12,39 +12,7 @@
 static UINT GetClipboardDataThreadFunc(LPVOID pParam)
 {
 	CNetworkOperationDialog* pDlg = (CNetworkOperationDialog*)pParam;
-
-	CMenu* mnu = pDlg->GetSystemMenu(FALSE);
-	mnu->EnableMenuItem(SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
-	pDlg->GetDlgItem(IDOK)->EnableWindow(FALSE);
-	pDlg->GetDlgItem(IDC_BUTTON_GET_DATA)->EnableWindow(FALSE);
-
-	CString strIp = pDlg->m_listMachine.GetItemText(pDlg->m_nRow, 0);
-	CString strPort = pDlg->m_listMachine.GetItemText(pDlg->m_nRow, 1);
-	int nPort = atoi(strPort);
-
-	CEdit* pEdit = (CEdit*)pDlg->GetDlgItem(IDC_EDIT_CLIPBOARD);
-	int nLineCount = pDlg->m_pDiskFileManager->m_userOption.bAppendMessage ? pEdit->GetLineCount() : 0;
-
-	if (pDlg->m_pDiskFileManager->m_userOption.bAppendMessage)
-		pDlg->AppendMessage("------------------------------------------------------------------------------------------", FALSE, FALSE, FALSE);
-	CString strMsg;
-	strMsg.Format(_M("Getting clipboard from %s ......"), strIp);
-	pDlg->AppendMessage(strMsg, !pDlg->m_pDiskFileManager->m_userOption.bAppendMessage, TRUE, TRUE);
-
-	CString strData;
-	int nFormat = pDlg->m_pDiskFileManager->m_userOption.bClipboardUnicode ? CF_UNICODETEXT : CF_TEXT;
-	BOOL bOk = pDlg->m_pDiskFileManager->m_workTool.Request_GetClipboardData(strIp, nPort, nFormat, strData);
-	pDlg->AppendMessage(strData, FALSE, !bOk, TRUE);
-
-	pDlg->AppendMessage(_M("Get clipboard ended!"), FALSE, TRUE, FALSE);
-	if (pDlg->m_pDiskFileManager->m_userOption.bAppendMessage)
-		pDlg->AppendMessage("------------------------------------------------------------------------------------------", FALSE, FALSE, TRUE);
-	
-	pEdit->LineScroll(nLineCount);
-
-	mnu->EnableMenuItem(SC_CLOSE, MF_BYCOMMAND);
-	pDlg->GetDlgItem(IDOK)->EnableWindow(TRUE);
-	pDlg->GetDlgItem(IDC_BUTTON_GET_DATA)->EnableWindow(TRUE);
+	pDlg->OnGetClipboardData();
 
 	return 0;
 }
@@ -61,6 +29,7 @@ CNetworkOperationDialog::CNetworkOperationDialog(CDiskFileManager* pDiskFileMana
 
 CNetworkOperationDialog::~CNetworkOperationDialog()
 {
+	
 }
 
 void CNetworkOperationDialog::DoDataExchange(CDataExchange* pDX)
@@ -122,6 +91,8 @@ BOOL CNetworkOperationDialog::OnInitDialog()
 	
 	LoadConfig();
 	SetUIText();
+
+	m_pDiskFileManager->SetWorkToolUser(this);
 
 	return TRUE;
 }
@@ -235,6 +206,8 @@ void CNetworkOperationDialog::SaveConfig()
 
 	m_pDiskFileManager->m_userOption.bClipboardUnicode = IsDlgButtonChecked(IDC_CHECK_UNICODE);
 	m_pDiskFileManager->m_userOption.bAppendMessage = IsDlgButtonChecked(IDC_CHECK_APPEND_MESSAGE);
+
+	m_pDiskFileManager->SetWorkToolUser(NULL);
 }
 
 void CNetworkOperationDialog::AppendMessage(CString strMessage, BOOL bCleanFirst, BOOL bAddTimeStamp, BOOL bAppendEndline)
@@ -258,4 +231,48 @@ void CNetworkOperationDialog::AppendMessage(CString strMessage, BOOL bCleanFirst
 		strExsitingMessage += "\r\n";
 
 	SetDlgItemText(IDC_EDIT_CLIPBOARD, strExsitingMessage);
+}
+
+void CNetworkOperationDialog::OnGetClipboardData()
+{
+	CMenu* mnu = GetSystemMenu(FALSE);
+	mnu->EnableMenuItem(SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+	GetDlgItem(IDOK)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON_GET_DATA)->EnableWindow(FALSE);
+
+	CString strIp = m_listMachine.GetItemText(m_nRow, 0);
+	CString strPort = m_listMachine.GetItemText(m_nRow, 1);
+	int nPort = atoi(strPort);
+
+	CEdit* pEdit = (CEdit*)GetDlgItem(IDC_EDIT_CLIPBOARD);
+	int nLineCount = m_pDiskFileManager->m_userOption.bAppendMessage ? pEdit->GetLineCount() : 0;
+
+	if (m_pDiskFileManager->m_userOption.bAppendMessage)
+		AppendMessage("------------------------------------------------------------------------------------------", FALSE, FALSE, FALSE);
+	CString strMsg;
+	strMsg.Format(_M("Getting clipboard from %s ......"), strIp);
+	AppendMessage(strMsg, !m_pDiskFileManager->m_userOption.bAppendMessage, TRUE, FALSE);
+
+	CString strData;
+	int nFormat = m_pDiskFileManager->m_userOption.bClipboardUnicode ? CF_UNICODETEXT : CF_TEXT;
+	BOOL bOk = m_pDiskFileManager->m_pWorkTool->Request_GetClipboardData(strIp, nPort, nFormat, strData);
+	if (strData.GetLength() != 0)
+		AppendMessage(strData, FALSE, TRUE, bOk);
+
+	AppendMessage(_M("Get clipboard ended!"), FALSE, TRUE, FALSE);
+	if (m_pDiskFileManager->m_userOption.bAppendMessage)
+		AppendMessage("------------------------------------------------------------------------------------------", FALSE, FALSE, TRUE);
+
+	pEdit->LineScroll(nLineCount);
+
+	mnu->EnableMenuItem(SC_CLOSE, MF_BYCOMMAND);
+	GetDlgItem(IDOK)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_GET_DATA)->EnableWindow(TRUE);
+}
+
+BOOL CNetworkOperationDialog::OnFileReceive(const CString& strFileName, BOOL bAddTimeStamp)
+{
+	AppendMessage(strFileName, FALSE, bAddTimeStamp, FALSE);
+
+	return TRUE;
 }

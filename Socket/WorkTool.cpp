@@ -4,9 +4,10 @@
 #include "stdlib.h"
 #include "tchar.h"
 
-CWorkTool::CWorkTool()
+CWorkTool::CWorkTool(IWorkToolUser* pUser)
 {
 	m_bExit = FALSE;
+	m_pUser = pUser;
 }
 
 CWorkTool::~CWorkTool()
@@ -138,11 +139,47 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 		return FALSE;
 	}
 
-	if (!socketTool.RecvStrValue(strOutput))
+	CString strActualClipboardFormat;
+	if (!socketTool.RecvStrValue(strActualClipboardFormat))
 	{
-		strOutput.Format(_M("Received clipboard failed!"));
+		strOutput.Format(_M("Receive actual  clipboard format failed!"));
 		return FALSE;
 	}
+
+	if (strActualClipboardFormat == _M("Ansi Text") || strActualClipboardFormat == _M("Unicode Text"))
+	{
+		if (!socketTool.RecvStrValue(strOutput))
+		{
+			strOutput.Format(_M("Received clipboard failed!"));
+			return FALSE;
+		}
+
+		strOutput = _M("Data format:") + strActualClipboardFormat + "\r\n\r\n" + strOutput;
+	}
+	else if (strActualClipboardFormat == _M("Directory|File"))
+	{
+		int nCount;
+		socketTool.RecvIntValue(nCount);
+
+		strOutput.Format("%s%s\r\n\r\nTotal Count:%d", _M("Data format:"), strActualClipboardFormat, nCount);
+
+		if (m_pUser)
+			m_pUser->OnFileReceive(strOutput, TRUE);
+
+		CString strFileName;
+		for (int i = 0; i < nCount; i++)
+		{
+			socketTool.RecvStrValue(strFileName);
+			if (m_pUser)
+				m_pUser->OnFileReceive(strFileName, FALSE);
+		}
+
+		if (m_pUser)
+			m_pUser->OnFileReceive("\r\n", FALSE);
+		
+		strOutput = "";
+	}
+
 
 	if (!socketTool.SendIntValue(NETWORK_TASK_END))
 	{
@@ -169,6 +206,8 @@ BOOL CWorkTool::Response_GetClipboardData()
 				strData = (LPCSTR) ::GlobalLock(hData);
 				::GlobalUnlock(hData);
 			}
+
+			m_socketTool.SendStrValue((LPTSTR)(LPCTSTR)_M("Ansi Text"));
 		}
 		else if (nFormat == CF_UNICODETEXT && ::IsClipboardFormatAvailable(CF_UNICODETEXT))
 		{
@@ -179,6 +218,28 @@ BOOL CWorkTool::Response_GetClipboardData()
 				::GlobalUnlock(hData);
 
 				strData = CString(pWchar);
+			}
+
+			m_socketTool.SendStrValue((LPTSTR)(LPCTSTR)_M("Unicode Text"));
+		}
+		else if (::IsClipboardFormatAvailable(CF_HDROP))
+		{
+			UINT cFiles = 0;
+			HDROP hDrop = HDROP(GetClipboardData(CF_HDROP));
+			if (hDrop)
+			{
+				m_socketTool.SendStrValue((LPTSTR)(LPCTSTR)_M("Directory|File"));
+
+				cFiles = DragQueryFile(hDrop, (UINT)-1, NULL, 0);
+
+				m_socketTool.SendIntValue((int)cFiles);
+
+				char szFile[MAX_PATH];
+				for (UINT count = 0; count < cFiles; count++)
+				{
+					DragQueryFile(hDrop, count, szFile, sizeof(szFile));
+					m_socketTool.SendStrValue(szFile);
+				}
 			}
 		}
 

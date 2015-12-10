@@ -9,7 +9,7 @@ static UINT NetWorkerThreadFunc(LPVOID pParam)
 {
 	CDiskFileManager* pDiskFileManager = (CDiskFileManager*)pParam;
 
-	if (!pDiskFileManager->m_workTool.StartWorking(pDiskFileManager->m_userOption.nLocalListeningPort))
+	if (!pDiskFileManager->m_pWorkTool->StartWorking(pDiskFileManager->m_userOption.nLocalListeningPort))
 	{
 		CString strShow;
 		strShow.Format(_M("Can NOT start net listener with port %d, please check!"), pDiskFileManager->m_userOption.nLocalListeningPort);
@@ -57,10 +57,12 @@ CDiskFileManager::CDiskFileManager(void)
 	m_pActiveFileExplorer = NULL;
 	m_hRefreshDiskDriveThreadHandle = 0;
 	m_strDefaultIniFile = _T("");
+	m_pWorkTool = new CWorkTool(NULL);
 }
 
 CDiskFileManager::~CDiskFileManager(void)
 {
+	delete	m_pWorkTool;
 }
 
 vector<CDiskDriverInfo> CDiskFileManager::GetDiskDriverList(BOOL bNotGetCapacityAndLabel)

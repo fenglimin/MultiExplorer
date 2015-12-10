@@ -1,11 +1,12 @@
 #pragma once
 
 #include "..\CustomListCtrl\CustomListCtrl.h"
+#include "..\Socket\WorkTool.h"
 
 // NetworkOperationDialog dialog
 class CDiskFileManager;
 
-class CNetworkOperationDialog : public CDialog, public ICustomListUser
+class CNetworkOperationDialog : public CDialog, public ICustomListUser, public IWorkToolUser
 {
 	DECLARE_DYNAMIC(CNetworkOperationDialog)
 
@@ -13,6 +14,7 @@ public:
 	CNetworkOperationDialog(CDiskFileManager* pDiskFileManager, CWnd* pParent = NULL);   // standard constructor
 	virtual ~CNetworkOperationDialog();
 
+	void OnGetClipboardData();
 	CString GetCurrentFormattedTime(BOOL bForFileName);
 	void AppendMessage(CString strMessage, BOOL bCleanFirst, BOOL bAddTimeStamp, BOOL bAppendEndline);
 
@@ -28,9 +30,11 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
 	virtual BOOL OnRowLDblClicked(CListCtrl* pListCtrl, int nRow, int nCol, UINT nFlags, CPoint point);
+	virtual BOOL OnFileReceive(const CString& strFileName, BOOL bAddTimeStamp);
 
 	void SaveConfig();
 	void LoadConfig();
+	
 
 
 
