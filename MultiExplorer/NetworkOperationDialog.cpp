@@ -270,9 +270,45 @@ void CNetworkOperationDialog::OnGetClipboardData()
 	GetDlgItem(IDC_BUTTON_GET_DATA)->EnableWindow(TRUE);
 }
 
-BOOL CNetworkOperationDialog::OnFileReceive(const CString& strFileName, BOOL bAddTimeStamp)
+BOOL CNetworkOperationDialog::OnNewMessage(const CString& strMessage, BOOL bAddTimeStamp)
 {
-	AppendMessage(strFileName, FALSE, bAddTimeStamp, FALSE);
+	AppendMessage(strMessage, FALSE, bAddTimeStamp, FALSE);
 
+	return TRUE;
+}
+
+BOOL CNetworkOperationDialog::OnEmptyDirReceived(CString strDir)
+{
+	AppendMessage(strDir, FALSE, FALSE, FALSE);
+
+	return TRUE;
+}
+
+BOOL CNetworkOperationDialog::OnGetAllDirFilesFromClipboard(CDiskFile& diskFile)
+{
+	BOOL bCut;
+
+	if (!m_pDiskFileManager->CheckCopyFromClipboard(diskFile, bCut))
+		return FALSE;
+
+	vector<CDirectoryInfo> vecDir;
+	vector<CFileInfo> vecFile;
+
+	CString strDirName;
+	for (int i = 0; i < (int)diskFile.vecDirectory.size(); i++)
+	{
+		m_pDiskFileManager->GetDirFileListRecursive(diskFile.strWorkDir, TRUE, diskFile.vecDirectory[i]+_T("\\"), vecDir, vecFile, TRUE, _T(""), _T(""));
+	}
+
+	for (int i = 0; i < (int)vecDir.size(); i++)
+	{
+		diskFile.vecDirectory.push_back(vecDir[i].strName);
+	}
+
+	for (int i = 0; i < (int)vecFile.size(); i++)
+	{
+		diskFile.vecFile.push_back(vecFile[i].strName);
+	}
+   
 	return TRUE;
 }
