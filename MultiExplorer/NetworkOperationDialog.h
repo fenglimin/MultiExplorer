@@ -30,7 +30,9 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
 	virtual BOOL OnRowLDblClicked(CListCtrl* pListCtrl, int nRow, int nCol, UINT nFlags, CPoint point);
-	virtual BOOL OnFileReceive(const CString& strFileName, BOOL bAddTimeStamp);
+	virtual BOOL OnNewMessage(const CString& strMessage, BOOL bAddTimeStamp);
+	virtual BOOL OnGetAllDirFilesFromClipboard(CDiskFile& diskFile);
+	virtual BOOL OnEmptyDirReceived(CString strDir);
 
 	void SaveConfig();
 	void LoadConfig();

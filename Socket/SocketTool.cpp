@@ -96,6 +96,9 @@ BOOL CSocketTool::RecvIntValue(int &nValue)
 	nRecvCount = recv ( m_socketWork, (char*)&nFlag, sizeof(nFlag), 0 );
 	if ( nRecvCount == SOCKET_ERROR )
 	{
+		int e = errno;
+		e = WSAGetLastError();
+		e = WSANOTINITIALISED;
 		CloseSocket();
 		m_bSocketGood = FALSE;
 		return FALSE;
@@ -219,6 +222,7 @@ BOOL CSocketTool::SendStrValue(char *strValue, int nLen)
 		int nSended = send ( m_socketWork, strValue+nTotalSend, nTryToSend, 0 );
 		if ( nSended == SOCKET_ERROR )
 		{
+			int err = WSAGetLastError();
 			CloseSocket();
 			m_bSocketGood = FALSE;
 			return FALSE;
@@ -595,27 +599,29 @@ BOOL CSocketTool::RecvStrAndRelay(CSocketTool *pRelaySocket)
 
 BOOL CSocketTool::IsSocketBlock( BOOL bCheckRead, SOCKET socketCheck, int nTimeOut )
 {
-	TIMEVAL tv;
-	tv.tv_usec = 0;
+	//TIMEVAL tv;
+	//tv.tv_usec = 0;
 
-	if ( nTimeOut == -1 )
-		if ( m_nTimeOut == 0 )
-			return FALSE;
-		else
-			tv.tv_sec = m_nTimeOut;
-	else
-		tv.tv_sec = nTimeOut;
-		
+	//if ( nTimeOut == -1 )
+	//	if ( m_nTimeOut == 0 )
+	//		return FALSE;
+	//	else
+	//		tv.tv_sec = m_nTimeOut;
+	//else
+	//	tv.tv_sec = nTimeOut;
+	//	
 
-	FD_SET fd	= { 1, socketCheck };
+	//FD_SET fd	= { 1, socketCheck };
 
-	int nRet;
-	if ( bCheckRead ) // listen recv recvfrom
-		nRet = select ( 0, &fd, NULL, NULL, &tv );
-	else // connect send sendto
-		nRet = select ( 0, NULL, &fd, NULL, &tv );
+	//int nRet;
+	//if ( bCheckRead ) // listen recv recvfrom
+	//	nRet = select ( 0, &fd, NULL, NULL, &tv );
+	//else // connect send sendto
+	//	nRet = select ( 0, NULL, &fd, NULL, &tv );
 
-	return ( nRet == 0 );
+	//return ( nRet == 0 );
+
+	return FALSE;
 }
 
 void CSocketTool::SetTimeOut ( int nTimeOut )

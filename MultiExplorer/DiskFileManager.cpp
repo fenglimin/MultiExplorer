@@ -165,7 +165,7 @@ BOOL CDiskFileManager::GetDirFileListRecursive( const CString& strDir, BOOL bRec
 
 BOOL CDiskFileManager::GetDirFileList( const CString& strDir, vector<CDirectoryInfo>& vecSubDir, vector<CFileInfo>& vecFile, BOOL bLoadHidden )
 {
-	char	strDescDir[MAX_PATH];
+	char	strDescDir[MAX_PATH*10];
 
 	strcpy_s ( strDescDir, strDir );
 	strcat_s ( strDescDir, "*.*" );
