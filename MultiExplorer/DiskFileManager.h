@@ -21,7 +21,7 @@ struct CDiskFilePresenter
 };
 
 
-class CDiskFileManager : public ICustomListUser
+class CDiskFileManager : public ICustomListUser, public IWorkToolServerUser
 {
 public:
 	CDiskFileManager(void);
@@ -42,7 +42,7 @@ public:
 	CWorkTool* m_pWorkTool;
 
 	void StartNetWorkerThread();
-	void SetWorkToolUser(IWorkToolUser* pUser) { m_pWorkTool->SetUser(pUser); }
+	void SetWorkToolClientUser(IWorkToolClientUser* pClientUser) { m_pWorkTool->SetClientUser(pClientUser); }
 	void ShowDirInActiveFileExplorer(const CString& strDir);
 	BOOL StartNewMultiExplorer(const CString& strDir);
 	void SetFileExplorerBackground(CFileExplorer* pFileExplorer, BOOL bActive);
@@ -112,6 +112,8 @@ public:
 	virtual BOOL OnKeyHitted(CListCtrl* pListCtrl, UINT uKey) ;
 	virtual BOOL OnVirtualKeyHitted(CListCtrl* pListCtrl, UINT uVirtualKey);
 	virtual BOOL OnSort(CListCtrl* pListCtrl, RowItemData* pid1, RowItemData* pid2, int& nCompareResult);
+
+	virtual BOOL OnGetAllDirFilesFromClipboard(CDiskFile& diskFile);
 
 	void OnUserOption();
 	void OnOpenDirWithExplorer(const CString& strDir);

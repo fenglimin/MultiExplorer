@@ -6,7 +6,7 @@
 // NetworkOperationDialog dialog
 class CDiskFileManager;
 
-class CNetworkOperationDialog : public CDialog, public ICustomListUser, public IWorkToolUser
+class CNetworkOperationDialog : public CDialog, public ICustomListUser, public IWorkToolClientUser
 {
 	DECLARE_DYNAMIC(CNetworkOperationDialog)
 
@@ -31,7 +31,7 @@ protected:
 	virtual BOOL OnInitDialog();
 	virtual BOOL OnRowLDblClicked(CListCtrl* pListCtrl, int nRow, int nCol, UINT nFlags, CPoint point);
 	virtual BOOL OnNewMessage(const CString& strMessage, BOOL bAddTimeStamp);
-	virtual BOOL OnGetAllDirFilesFromClipboard(CDiskFile& diskFile);
+	
 	virtual BOOL OnEmptyDirReceived(CString strDir);
 
 	void SaveConfig();
@@ -46,4 +46,5 @@ public:
 	afx_msg void OnBnClickedButtonGetData();
 	afx_msg void OnClose();
 	afx_msg void OnBnClickedOk();
+	afx_msg void OnEnChangeRichedit21();
 };

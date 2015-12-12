@@ -3,8 +3,8 @@
 
 #include <winsock.h>
 
-#define MAX_LEN								102400
-#define	MAX_TRANS_UNIT						4096
+//#define MAX_LEN								102400
+#define	MAX_TRANS_UNIT						10240
 
 typedef struct _SOCKET_STREAM_FILE_INFO {
 
@@ -68,7 +68,7 @@ public:
 	BOOL RecvFileAndRelay ( CSocketTool* pRelaySocket );
 
 	BOOL SendStrValue ( char* strValue, int nLen = -1 );
-	BOOL RecvStrValue ( char* strValue, int& nLen );
+//	BOOL RecvStrValue ( char* strValue, int& nLen );
 	BOOL RecvStrValue ( CString& strValue );
 
 	BOOL SendIntValue ( int nValue );

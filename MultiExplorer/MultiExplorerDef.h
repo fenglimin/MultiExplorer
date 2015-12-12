@@ -130,3 +130,15 @@ struct CDiskDriverInfo
 
 };
 
+class IWorkToolServerUser
+{
+public:
+	virtual BOOL OnGetAllDirFilesFromClipboard(CDiskFile& diskFile){ return TRUE; }
+};
+
+class IWorkToolClientUser
+{
+public:
+	virtual BOOL OnNewMessage(const CString& strMessage, BOOL bAddTimeStamp){ return TRUE; }
+	virtual BOOL OnEmptyDirReceived(CString strDir){ return TRUE; }
+};

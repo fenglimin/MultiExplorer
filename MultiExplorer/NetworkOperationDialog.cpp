@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CNetworkOperationDialog, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_GET_DATA, &CNetworkOperationDialog::OnBnClickedButtonGetData)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDOK, &CNetworkOperationDialog::OnBnClickedOk)
+	ON_EN_CHANGE(IDC_RICHEDIT21, &CNetworkOperationDialog::OnEnChangeRichedit21)
 END_MESSAGE_MAP()
 
 
@@ -92,7 +93,7 @@ BOOL CNetworkOperationDialog::OnInitDialog()
 	LoadConfig();
 	SetUIText();
 
-	m_pDiskFileManager->SetWorkToolUser(this);
+	m_pDiskFileManager->SetWorkToolClientUser(this);
 
 	return TRUE;
 }
@@ -207,14 +208,22 @@ void CNetworkOperationDialog::SaveConfig()
 	m_pDiskFileManager->m_userOption.bClipboardUnicode = IsDlgButtonChecked(IDC_CHECK_UNICODE);
 	m_pDiskFileManager->m_userOption.bAppendMessage = IsDlgButtonChecked(IDC_CHECK_APPEND_MESSAGE);
 
-	m_pDiskFileManager->SetWorkToolUser(NULL);
+	m_pDiskFileManager->SetWorkToolClientUser(NULL);
 }
 
 void CNetworkOperationDialog::AppendMessage(CString strMessage, BOOL bCleanFirst, BOOL bAddTimeStamp, BOOL bAppendEndline)
 {
+	CEdit* pEdit = (CEdit*)GetDlgItem(IDC_EDIT_CLIPBOARD);
+
+	int nLineCount = 0;
 	CString strExsitingMessage;
 	if (!bCleanFirst)
-		GetDlgItemText(IDC_EDIT_CLIPBOARD, strExsitingMessage);
+	{
+		//GetDlgItemText(IDC_EDIT_CLIPBOARD, strExsitingMessage
+		pEdit->GetWindowText(strExsitingMessage);
+		nLineCount = pEdit->GetLineCount();
+	}
+
 
 	if (strExsitingMessage.GetLength() != 0)
 		strExsitingMessage += "\r\n";
@@ -230,7 +239,9 @@ void CNetworkOperationDialog::AppendMessage(CString strMessage, BOOL bCleanFirst
 	if (bAppendEndline)
 		strExsitingMessage += "\r\n";
 
-	SetDlgItemText(IDC_EDIT_CLIPBOARD, strExsitingMessage);
+	//SetDlgItemText(IDC_EDIT_CLIPBOARD, strExsitingMessage);
+	pEdit->SetWindowText(strExsitingMessage);
+	pEdit->LineScroll(nLineCount+1);
 }
 
 void CNetworkOperationDialog::OnGetClipboardData()
@@ -243,9 +254,6 @@ void CNetworkOperationDialog::OnGetClipboardData()
 	CString strIp = m_listMachine.GetItemText(m_nRow, 0);
 	CString strPort = m_listMachine.GetItemText(m_nRow, 1);
 	int nPort = atoi(strPort);
-
-	CEdit* pEdit = (CEdit*)GetDlgItem(IDC_EDIT_CLIPBOARD);
-	int nLineCount = m_pDiskFileManager->m_userOption.bAppendMessage ? pEdit->GetLineCount() : 0;
 
 	if (m_pDiskFileManager->m_userOption.bAppendMessage)
 		AppendMessage("------------------------------------------------------------------------------------------", FALSE, FALSE, FALSE);
@@ -263,8 +271,6 @@ void CNetworkOperationDialog::OnGetClipboardData()
 	if (m_pDiskFileManager->m_userOption.bAppendMessage)
 		AppendMessage("------------------------------------------------------------------------------------------", FALSE, FALSE, TRUE);
 
-	pEdit->LineScroll(nLineCount);
-
 	mnu->EnableMenuItem(SC_CLOSE, MF_BYCOMMAND);
 	GetDlgItem(IDOK)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BUTTON_GET_DATA)->EnableWindow(TRUE);
@@ -279,36 +285,19 @@ BOOL CNetworkOperationDialog::OnNewMessage(const CString& strMessage, BOOL bAddT
 
 BOOL CNetworkOperationDialog::OnEmptyDirReceived(CString strDir)
 {
+	CreateDirectory(strDir, NULL);
+
 	AppendMessage(strDir, FALSE, FALSE, FALSE);
 
 	return TRUE;
 }
 
-BOOL CNetworkOperationDialog::OnGetAllDirFilesFromClipboard(CDiskFile& diskFile)
+void CNetworkOperationDialog::OnEnChangeRichedit21()
 {
-	BOOL bCut;
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the __super::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
 
-	if (!m_pDiskFileManager->CheckCopyFromClipboard(diskFile, bCut))
-		return FALSE;
-
-	vector<CDirectoryInfo> vecDir;
-	vector<CFileInfo> vecFile;
-
-	CString strDirName;
-	for (int i = 0; i < (int)diskFile.vecDirectory.size(); i++)
-	{
-		m_pDiskFileManager->GetDirFileListRecursive(diskFile.strWorkDir, TRUE, diskFile.vecDirectory[i]+_T("\\"), vecDir, vecFile, TRUE, _T(""), _T(""));
-	}
-
-	for (int i = 0; i < (int)vecDir.size(); i++)
-	{
-		diskFile.vecDirectory.push_back(vecDir[i].strName);
-	}
-
-	for (int i = 0; i < (int)vecFile.size(); i++)
-	{
-		diskFile.vecFile.push_back(vecFile[i].strName);
-	}
-   
-	return TRUE;
+	// TODO:  Add your control notification handler code here
 }

@@ -4,10 +4,11 @@
 #include "stdlib.h"
 #include "tchar.h"
 
-CWorkTool::CWorkTool(IWorkToolUser* pUser)
+CWorkTool::CWorkTool(IWorkToolServerUser* pServerUser)
 {
 	m_bExit = FALSE;
-	m_pUser = pUser;
+	m_pServerUser = pServerUser;
+	m_pClientUser = NULL;
 }
 
 CWorkTool::~CWorkTool()
@@ -17,17 +18,17 @@ CWorkTool::~CWorkTool()
 
 BOOL CWorkTool::StartWorking( int nPort )
 {
-	CSocketTool::SetTimeOut ( 15 );
+	CSocketTool::SetTimeOut(60000);
 
-	if ( !m_socketTool.Init ( nPort ) )
+	if ( !m_socketListen.Init ( nPort ) )
 		return FALSE;
 
 	while ( !m_bExit )
 	{
 		// Accept connecting
-		if ( !m_socketTool.PendingAccept() )
+		if ( !m_socketListen.PendingAccept() )
 		{
-			if ( m_socketTool.m_bSocketGood )
+			if ( m_socketListen.m_bSocketGood )
 			{
 				Sleep ( 500 );
 				continue;
@@ -43,18 +44,22 @@ BOOL CWorkTool::StartWorking( int nPort )
 		BOOL bOk = PendingRead();
 
 		// Release connecting
-		closesocket ( m_socketTool.m_socketWork );
+		m_socketListen.CloseSocket();
 
-		if ( !bOk )
+		if (!m_socketListen.Init(nPort))
+			return FALSE;
+
+/*		if ( !bOk )
 		{
-			closesocket ( m_socketTool.m_socketListen );
+			closesocket ( m_socketListen.m_socketListen );
+			m_socketListen.m_socketListen = INVALID_SOCKET;
 
-			if ( m_socketTool.m_bSocketGood )
+			if ( m_socketListen.m_bSocketGood )
 				return TRUE;
 
-			if ( !m_socketTool.Init(m_socketTool.m_nPort) )
+			if ( !m_socketListen.Init(m_socketListen.m_nPort) )
 				return FALSE;
-		}	
+		}*/	
 	}
 
 	return TRUE;
@@ -63,7 +68,7 @@ BOOL CWorkTool::StartWorking( int nPort )
 BOOL CWorkTool::PendingRead()
 {
 	int nFlag;
-	if ( !m_socketTool.RecvIntValue ( nFlag ) )
+	if ( !m_socketListen.RecvIntValue ( nFlag ) )
 		return FALSE;
 	
 	switch ( nFlag )
@@ -72,10 +77,10 @@ BOOL CWorkTool::PendingRead()
 		break;
 	}
 
-	if ( m_socketTool.m_bSocketGood )
+	if ( m_socketListen.m_bSocketGood )
 	{
 		int nTaskEndFlag;
-		m_socketTool.RecvIntValue(nTaskEndFlag);
+		m_socketListen.RecvIntValue(nTaskEndFlag);
 		if (nTaskEndFlag != NETWORK_TASK_END)
 			return FALSE;
 	}
@@ -83,48 +88,48 @@ BOOL CWorkTool::PendingRead()
 	return TRUE;
 }
 
-BOOL CWorkTool::NetPeek_Chatting()
-{
-	char strValue[256];
-	int  nLen = 256;
+//BOOL CWorkTool::NetPeek_Chatting()
+//{
+//	char strValue[256];
+//	int  nLen = 256;
+//
+//	BOOL bOk = m_socketListen.RecvStrValue ( strValue, nLen );
+////	if ( bOk )
+////		MessageBox ( NULL, strValue, "Chat", MB_OK );
+//	
+//	return bOk;
+//}
 
-	BOOL bOk = m_socketTool.RecvStrValue ( strValue, nLen );
-//	if ( bOk )
-//		MessageBox ( NULL, strValue, "Chat", MB_OK );
-	
-	return bOk;
-}
 
-
-BOOL CWorkTool::NetPeek_RecvFile()
-{
-	char strFileFullName[MAX_PATH];
-	int  nLen = MAX_PATH;
-	if (!m_socketTool.RecvStrValue(strFileFullName, nLen))
-		return FALSE;
-
-	return m_socketTool.RecvFile(strFileFullName);
-}
-
-BOOL CWorkTool::NetPeek_SendFile()
-{
-	char strFileFullName[MAX_PATH];
-	int  nFileLen = MAX_PATH;
-
-	if (!m_socketTool.RecvStrValue(strFileFullName, nFileLen))
-		return FALSE;
-
-	return m_socketTool.SendFile(strFileFullName);
-}
+//BOOL CWorkTool::NetPeek_RecvFile()
+//{
+//	char strFileFullName[MAX_PATH];
+//	int  nLen = MAX_PATH;
+//	if (!m_socketListen.RecvStrValue(strFileFullName, nLen))
+//		return FALSE;
+//
+//	return m_socketListen.RecvFile(strFileFullName);
+//}
+//
+//BOOL CWorkTool::NetPeek_SendFile()
+//{
+//	char strFileFullName[MAX_PATH];
+//	int  nFileLen = MAX_PATH;
+//
+//	if (!m_socketListen.RecvStrValue(strFileFullName, nFileLen))
+//		return FALSE;
+//
+//	return m_socketListen.SendFile(strFileFullName);
+//}
 
 BOOL CWorkTool::RecvEmptyDir()
 {
 	CString strDir;
-	if (!m_socketTool.RecvStrValue(strDir))
+	if (!m_socketListen.RecvStrValue(strDir))
 		return FALSE;
 
-	if (m_pUser)
-		return m_pUser->OnEmptyDirReceived(strDir);
+	if (m_pClientUser)
+		return m_pClientUser->OnEmptyDirReceived(strDir);
 
 	return FALSE;
 }
@@ -175,13 +180,13 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 	}
 	else if (strActualClipboardFormat == _M("Directory|File"))
 	{
-		if (m_pUser == NULL)
+		if (m_pClientUser == NULL)
 		{
 			strOutput = _M("Internal error!");
 			return FALSE;
 		}
 
-		m_pUser->OnNewMessage(_M("Data format:") + strActualClipboardFormat, TRUE);
+		m_pClientUser->OnNewMessage(_M("Data format:") + strActualClipboardFormat, TRUE);
 
 		int nDirCount = 0;
 		int nFileCount = 0;
@@ -189,71 +194,29 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 		socketTool.RecvIntValue(nFileCount);
 
 		strOutput.Format(_M("\r\nTotal %d directories, %d files"), nDirCount, nFileCount);
-		m_pUser->OnNewMessage(strOutput, FALSE);
+		m_pClientUser->OnNewMessage(strOutput, FALSE);
 
-
-		int aaa;
-		CString strTemp;
-		for (int i = 0; i < 13; i++)
+		// Create directory
+		CString strDirName;
+		for (int i = 0; i < nDirCount; i++)
 		{
-			m_socketTool.RecvIntValue(aaa);
-			strTemp.Format("%d", aaa);
-			m_pUser->OnNewMessage(strTemp, FALSE);
+			if (!socketTool.RecvStrValue(strDirName))
+				return FALSE;
+
+			m_pClientUser->OnEmptyDirReceived("C:\\temp\\" + strDirName);
 		}
-		//socketTool.RecvFile("C:\\11.txt");
 
-		//socketTool.RecvFile("C:\\12.txt");
+		CString strFileName;
+		for (int i = 0; i < nFileCount; i++)
+		{
+			if (!socketTool.RecvStrValue(strFileName))
+				return FALSE;
+			m_pClientUser->OnEmptyDirReceived(strFileName);
 
-		//socketTool.RecvFile("C:\\13.txt");
+			socketTool.RecvFile((LPTSTR)(LPCTSTR)("C:\\temp\\" + strFileName));
+		}
 
-		//socketTool.RecvFile("C:\\14.txt");
-
-		//socketTool.RecvFile("C:\\15.txt");
-
-		//socketTool.RecvFile("C:\\16.txt");
-
-		//socketTool.RecvFile("C:\\17.txt");
-
-		//socketTool.RecvFile("C:\\18.txt");
-
-		//socketTool.RecvFile("C:\\19.txt");
-
-		//socketTool.RecvFile("C:\\20.txt");
-
-		//socketTool.RecvFile("C:\\21.txt");
-
-		//socketTool.RecvFile("C:\\22.txt");
-
-		//socketTool.RecvFile("C:\\23.txt");
-		//socketTool.RecvFile("C:\\24.txt");
-
-
-		
-		//CString strDirName;
-		//for (int i = 0; i < nDirCount; i++)
-		//{
-		//	if (!socketTool.RecvStrValue(strDirName))
-		//		return FALSE;
-
-		//	m_pUser->OnEmptyDirReceived(strDirName);
-		//}
-
-		//CString strFileName;
-		//for (int i = 0; i < nFileCount; i++)
-		//{
-		//	if (!socketTool.RecvStrValue(strFileName))
-		//		return FALSE;
-		//}
-
-		//CString strFileName;
-		//for (int i = 0; i < nCount; i++)
-		//{
-		//	socketTool.RecvStrValue(strFileName);
-		//	if (m_pUser)
-		//		m_pUser->OnNewMessage(strFileName, FALSE);
-		//}
-
-		m_pUser->OnNewMessage("\r\n", FALSE);
+		m_pClientUser->OnNewMessage("\r\n", FALSE);
 		
 		strOutput = "";
 	}
@@ -271,7 +234,7 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 BOOL CWorkTool::Response_GetClipboardData()
 {
 	int nFormat = CF_TEXT;
-	m_socketTool.RecvIntValue(nFormat);
+	m_socketListen.RecvIntValue(nFormat);
 
 	CString strData;
 	if (::OpenClipboard(NULL))
@@ -285,8 +248,8 @@ BOOL CWorkTool::Response_GetClipboardData()
 				::GlobalUnlock(hData);
 			}
 
-			m_socketTool.SendStrValue((LPTSTR)(LPCTSTR)_M("Ansi Text"));
-			m_socketTool.SendStrValue((LPTSTR)(LPCTSTR)strData);
+			m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)_M("Ansi Text"));
+			m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)strData);
 		}
 		else if (nFormat == CF_UNICODETEXT && ::IsClipboardFormatAvailable(CF_UNICODETEXT))
 		{
@@ -299,58 +262,32 @@ BOOL CWorkTool::Response_GetClipboardData()
 				strData = CString(pWchar);
 			}
 
-			m_socketTool.SendStrValue((LPTSTR)(LPCTSTR)_M("Unicode Text"));
-			m_socketTool.SendStrValue((LPTSTR)(LPCTSTR)strData);
+			m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)_M("Unicode Text"));
+			m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)strData);
 		}
 		else if (::IsClipboardFormatAvailable(CF_HDROP))
 		{
-			if (m_pUser)
+			if (m_pServerUser)
 			{
 				CDiskFile diskFile;
-				if (m_pUser->OnGetAllDirFilesFromClipboard(diskFile))
+				if (m_pServerUser->OnGetAllDirFilesFromClipboard(diskFile))
 				{
-					m_socketTool.SendStrValue((LPTSTR)(LPCTSTR)_M("Directory|File"));
-					m_socketTool.SendIntValue((int)diskFile.vecDirectory.size());
-					m_socketTool.SendIntValue((int)diskFile.vecFile.size());
+					m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)_M("Directory|File"));
+					m_socketListen.SendIntValue((int)diskFile.vecDirectory.size());
+					m_socketListen.SendIntValue((int)diskFile.vecFile.size());
 				}
 
-				//for (int i = 0; i < 14; i++)
-				//{
-				//	m_socketTool.SendFile("C:\\nlog.txt");
-				//}
-
-				for (int i = 0; i < 13; i++)
+				for (int i = 0; i < (int)diskFile.vecDirectory.size(); i++)
 				{
-					m_socketTool.SendIntValue(i);
+					m_socketListen.SendStrValue(diskFile.vecDirectory[i].GetBuffer(0));
 				}
-				//for (int i = 0; i < (int)diskFile.vecDirectory.size(); i++)
-				//{
-				//	m_socketTool.SendStrValue(diskFile.vecDirectory[i].GetBuffer(0));
-				//	Sleep(2);
-				//}
 
-				//for (int i = 0; i < (int)diskFile.vecFile.size(); i++)
-				//{
-				//	m_socketTool.SendStrValue((LPTSTR)(LPCTSTR)diskFile.vecFile[i]);
-				//}
+				for (int i = 0; i < (int)diskFile.vecFile.size(); i++)
+				{
+					m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)diskFile.vecFile[i]);
+					m_socketListen.SendFile((LPTSTR)(LPCTSTR)(diskFile.strWorkDir + diskFile.vecFile[i]));
+				}
 			}
-			//UINT cFiles = 0;
-			//HDROP hDrop = HDROP(GetClipboardData(CF_HDROP));
-			//if (hDrop)
-			//{
-			//	m_socketTool.SendStrValue((LPTSTR)(LPCTSTR)_M("Directory|File"));
-
-			//	cFiles = DragQueryFile(hDrop, (UINT)-1, NULL, 0);
-
-			//	m_socketTool.SendIntValue((int)cFiles);
-
-			//	char szFile[MAX_PATH];
-			//	for (UINT count = 0; count < cFiles; count++)
-			//	{
-			//		DragQueryFile(hDrop, count, szFile, sizeof(szFile));
-			//		m_socketTool.SendStrValue(szFile);
-			//	}
-			//}
 		}
 
 		::CloseClipboard();

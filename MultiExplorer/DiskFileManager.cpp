@@ -57,7 +57,7 @@ CDiskFileManager::CDiskFileManager(void)
 	m_pActiveFileExplorer = NULL;
 	m_hRefreshDiskDriveThreadHandle = 0;
 	m_strDefaultIniFile = _T("");
-	m_pWorkTool = new CWorkTool(NULL);
+	m_pWorkTool = new CWorkTool(this);
 }
 
 CDiskFileManager::~CDiskFileManager(void)
@@ -3024,4 +3024,43 @@ void CDiskFileManager::OnAddToFavorite( CString strCurDir )
 		return;
 
 	m_faviouriteDirDialog.AddFavoriteDir(atfd.m_strGroup, atfd.m_strName, strTargetDir);
+}
+
+BOOL CDiskFileManager::OnGetAllDirFilesFromClipboard(CDiskFile& diskFile)
+{
+	BOOL bCut;
+
+	if (!CheckCopyFromClipboard(diskFile, bCut))
+		return FALSE;
+
+	vector<CDirectoryInfo> vecDir;
+	vector<CFileInfo> vecFile;
+
+	CString strDirName;
+	vector<CString> vecInputDir = diskFile.vecDirectory;
+
+	for (int i = 0; i < (int)vecInputDir.size(); i++)
+	{
+		vecDir.clear();
+		GetDirFileListRecursive(diskFile.strWorkDir, TRUE, diskFile.vecDirectory[i] + _T("\\"), vecDir, vecFile, TRUE, _T(""), _T(""));
+
+		//for (int i = 0; i < (int)vecDir.size(); i++)
+		//{
+		//	diskFile.vecDirectory.insert(diskFile.vecDirectory.begin(), vecDir[i].strName);
+		//}
+
+		for (int i = (int)vecDir.size()-1; i >= 0; i--)
+		{
+			diskFile.vecDirectory.push_back(vecDir[i].strName);
+		}
+	}
+
+
+
+	for (int i = 0; i < (int)vecFile.size(); i++)
+	{
+		diskFile.vecFile.push_back(vecFile[i].strName);
+	}
+
+	return TRUE;
 }

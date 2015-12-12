@@ -64,6 +64,18 @@ BOOL CSocketTool::Init(int nPort)
 	
 	m_nPort			= nPort;
 	m_bSocketGood	= TRUE;
+
+	int value = MAX_TRANS_UNIT;
+	int tmpCode = 0;
+	tmpCode = ::setsockopt(m_socketWork, SOL_SOCKET, SO_RCVBUF, (char*)&value, sizeof(value));
+	tmpCode = ::setsockopt(m_socketWork, SOL_SOCKET, SO_SNDBUF, (char*)&value, sizeof(value));
+	int result = 0;
+	int len = 4;
+	tmpCode = ::getsockopt((SOCKET)m_socketWork, SOL_SOCKET, SO_RCVBUF, (char*)&result, &len);
+	printf("SO_RCVBUF=%d, tmpCode=%d\n", result, tmpCode);
+	tmpCode = ::getsockopt((SOCKET)m_socketWork, SOL_SOCKET, SO_SNDBUF, (char*)&result, &len);
+	printf("SO_SNDBUF=%d, tmpCode=%d\n", result, tmpCode);
+
 	return TRUE;
 }
 
@@ -76,8 +88,9 @@ BOOL CSocketTool::PendingAccept(int nTimeOut)
 	int nLen = sizeof ( m_addrListen );
 	m_socketWork = accept ( m_socketListen, (struct sockaddr far *)&m_addrListen,
 							  &nLen );
-	if ( m_socketWork < 0 )
+	if (m_socketWork == INVALID_SOCKET)
 	{
+		int err = WSAGetLastError();
 		CloseSocket();
 		m_bSocketGood = FALSE;
 		return FALSE;
@@ -117,42 +130,42 @@ BOOL CSocketTool::RecvIntValue(int &nValue)
 		...
 	}
 */
-BOOL CSocketTool::RecvStrValue(char *strValue, int &nLen)
-{
-	int nBufferLen;
-	if ( !RecvIntValue(nBufferLen) )
-		return FALSE;
-
-	if ( nBufferLen > nLen )
-		return FALSE;
-	nLen = nBufferLen;
-
-	lstrcpy ( strValue, "" );
-
-	int nTotalRecv = 0;
-	while ( nTotalRecv < nBufferLen )
-	{
-		int nTryToRecv = MAX_TRANS_UNIT;
-		if ( nLen-nTotalRecv < MAX_TRANS_UNIT )
-			nTryToRecv = nLen-nTotalRecv;
-
-		if ( IsSocketBlock ( TRUE, m_socketWork ) )
-			return FALSE;
-
-		int nRecved = recv ( m_socketWork, strValue+nTotalRecv, nTryToRecv, 0 );
-		if ( nRecved == SOCKET_ERROR )
-		{
-			CloseSocket();
-			m_bSocketGood = FALSE;
-			return FALSE;
-		}
-
-		nTotalRecv += nRecved;
-	}
-
-	strValue[nTotalRecv] = '\0';
-	return TRUE;
-}
+//BOOL CSocketTool::RecvStrValue(char *strValue, int &nLen)
+//{
+//	int nBufferLen;
+//	if ( !RecvIntValue(nBufferLen) )
+//		return FALSE;
+//
+//	if ( nBufferLen > nLen )
+//		return FALSE;
+//	nLen = nBufferLen;
+//
+//	lstrcpy ( strValue, "" );
+//
+//	int nTotalRecv = 0;
+//	while ( nTotalRecv < nBufferLen )
+//	{
+//		int nTryToRecv = MAX_TRANS_UNIT;
+//		if ( nLen-nTotalRecv < MAX_TRANS_UNIT )
+//			nTryToRecv = nLen-nTotalRecv;
+//
+//		if ( IsSocketBlock ( TRUE, m_socketWork ) )
+//			return FALSE;
+//
+//		int nRecved = recv ( m_socketWork, strValue+nTotalRecv, nTryToRecv, 0 );
+//		if ( nRecved == SOCKET_ERROR )
+//		{
+//			CloseSocket();
+//			m_bSocketGood = FALSE;
+//			return FALSE;
+//		}
+//
+//		nTotalRecv += nRecved;
+//	}
+//
+//	strValue[nTotalRecv] = '\0';
+//	return TRUE;
+//}
 
 BOOL CSocketTool::RecvStrValue(CString& strValue)
 {
@@ -162,24 +175,45 @@ BOOL CSocketTool::RecvStrValue(CString& strValue)
 
 	int nIndex = 0;
 	char* pBuffer = new char[nBufferLen + 1];
-	while ( nBufferLen > 0)
-	{
-		if (IsSocketBlock(TRUE, m_socketWork))
-			return FALSE;
+	//while ( nBufferLen > 0)
+	//{
+	//	if (IsSocketBlock(TRUE, m_socketWork))
+	//		return FALSE;
 
-		int nRecved = recv(m_socketWork, &pBuffer[nIndex], nBufferLen, 0);
-		if (nRecved == SOCKET_ERROR)
+	//	int nRecved = recv(m_socketWork, &pBuffer[nIndex], nBufferLen, 0);
+	//	if (nRecved == SOCKET_ERROR)
+	//	{
+	//		CloseSocket();
+	//		m_bSocketGood = FALSE;
+	//		return FALSE;
+	//	}
+
+	//	nIndex += nRecved;
+	//	nBufferLen -= nRecved;
+	//}
+
+	int nTotalRecv = 0;
+	while ( nTotalRecv < nBufferLen )
+	{
+		int nTryToRecv = MAX_TRANS_UNIT;
+		if (nBufferLen - nTotalRecv < MAX_TRANS_UNIT)
+			nTryToRecv = nBufferLen - nTotalRecv;
+	
+		if ( IsSocketBlock ( TRUE, m_socketWork ) )
+			return FALSE;
+	
+		int nRecved = recv(m_socketWork, &pBuffer[nTotalRecv], nTryToRecv, 0);
+		if ( nRecved == SOCKET_ERROR )
 		{
 			CloseSocket();
 			m_bSocketGood = FALSE;
 			return FALSE;
 		}
-
-		nIndex += nRecved;
-		nBufferLen -= nRecved;
+	
+		nTotalRecv += nRecved;
 	}
 
-	pBuffer[nIndex] = '\0';
+	pBuffer[nBufferLen] = '\0';
 	strValue = pBuffer;
 
 	delete[] pBuffer;
@@ -191,9 +225,10 @@ BOOL CSocketTool::SendIntValue(int nValue)
 	if ( IsSocketBlock ( FALSE, m_socketWork ) )
 		return FALSE;
 
-	int nSend = send ( m_socketWork, (char*)&nValue, sizeof(nValue)+1, MSG_OOB );
+	int nSend = send ( m_socketWork, (char*)&nValue, sizeof(nValue), 0 );
 	if ( nSend == SOCKET_ERROR )
 	{
+		int err = WSAGetLastError();
 		CloseSocket();
 		return FALSE;
 	}
@@ -319,7 +354,7 @@ BOOL CSocketTool::SendFile(char *strFileFullName)
 		}
 		dwRead += nSended;
 	}
-	delete data;
+	delete[] data;
 
 	CloseHandle ( hFile );
 
@@ -329,10 +364,14 @@ BOOL CSocketTool::SendFile(char *strFileFullName)
 
 void CSocketTool::CloseSocket()
 {
-	if ( m_bServer )
-		closesocket ( m_socketListen );
+	if (m_bServer)
+	{
+		closesocket(m_socketListen);
+		m_socketListen = INVALID_SOCKET;
+	}
 
 	closesocket ( m_socketWork );
+	m_socketWork = INVALID_SOCKET;
 }
 
 BOOL CSocketTool::Connect(char *strHostName, int nPort, BOOL bShowMessageIfError)
@@ -423,6 +462,18 @@ BOOL CSocketTool::Connect(char *strHostName, int nPort, BOOL bShowMessageIfError
 
 	m_nPort			= nNextHostPort;
 	m_bSocketGood	= TRUE;
+
+	int value = MAX_TRANS_UNIT;
+	int tmpCode = 0;
+	tmpCode = ::setsockopt(m_socketWork, SOL_SOCKET, SO_RCVBUF, (char*)&value, sizeof(value));
+	tmpCode = ::setsockopt(m_socketWork, SOL_SOCKET, SO_SNDBUF, (char*)&value, sizeof(value));
+	int result = 0;
+	int len = 4;
+	tmpCode = ::getsockopt((SOCKET)m_socketWork, SOL_SOCKET, SO_RCVBUF, (char*)&result, &len);
+	printf("SO_RCVBUF=%d, tmpCode=%d\n", result, tmpCode);
+	tmpCode = ::getsockopt((SOCKET)m_socketWork, SOL_SOCKET, SO_SNDBUF, (char*)&result, &len);
+	printf("SO_SNDBUF=%d, tmpCode=%d\n", result, tmpCode);
+
 	return TRUE;
 }
 
@@ -576,26 +627,6 @@ BOOL CSocketTool::RecvFileAndRelay(CSocketTool *pRelaySocket)
 	return TRUE;
 }
 
-BOOL CSocketTool::RecvIntAndRelay(CSocketTool *pRelaySocket)
-{
-	int nValue;
-
-	if ( !RecvIntValue ( nValue ) )
-		return FALSE;
-
-	return pRelaySocket->SendIntValue ( nValue );
-}
-
-BOOL CSocketTool::RecvStrAndRelay(CSocketTool *pRelaySocket)
-{
-	char strValue[102400];
-	int nLen = 102400;
-
-	if ( !RecvStrValue ( strValue, nLen ) )
-		return FALSE;
-
-	return pRelaySocket->SendStrValue ( strValue, nLen );
-}
 
 BOOL CSocketTool::IsSocketBlock( BOOL bCheckRead, SOCKET socketCheck, int nTimeOut )
 {
