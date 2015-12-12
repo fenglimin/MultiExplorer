@@ -3026,7 +3026,7 @@ void CDiskFileManager::OnAddToFavorite( CString strCurDir )
 	m_faviouriteDirDialog.AddFavoriteDir(atfd.m_strGroup, atfd.m_strName, strTargetDir);
 }
 
-BOOL CDiskFileManager::OnGetAllDirFilesFromClipboard(CDiskFile& diskFile)
+BOOL CDiskFileManager::OnGetAllDirFilesFromClipboard(CDiskFile& diskFile, int& nTotalSizeInM)
 {
 	BOOL bCut;
 
@@ -3044,11 +3044,6 @@ BOOL CDiskFileManager::OnGetAllDirFilesFromClipboard(CDiskFile& diskFile)
 		vecDir.clear();
 		GetDirFileListRecursive(diskFile.strWorkDir, TRUE, diskFile.vecDirectory[i] + _T("\\"), vecDir, vecFile, TRUE, _T(""), _T(""));
 
-		//for (int i = 0; i < (int)vecDir.size(); i++)
-		//{
-		//	diskFile.vecDirectory.insert(diskFile.vecDirectory.begin(), vecDir[i].strName);
-		//}
-
 		for (int i = (int)vecDir.size()-1; i >= 0; i--)
 		{
 			diskFile.vecDirectory.push_back(vecDir[i].strName);
@@ -3056,11 +3051,14 @@ BOOL CDiskFileManager::OnGetAllDirFilesFromClipboard(CDiskFile& diskFile)
 	}
 
 
-
+	__int64 nTotalSize = 0;
 	for (int i = 0; i < (int)vecFile.size(); i++)
 	{
 		diskFile.vecFile.push_back(vecFile[i].strName);
+		nTotalSize += vecFile[i].nSize;
 	}
-
+ 
+	nTotalSizeInM = nTotalSize / 1024 / 1024;
+	
 	return TRUE;
 }

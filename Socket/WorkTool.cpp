@@ -88,51 +88,6 @@ BOOL CWorkTool::PendingRead()
 	return TRUE;
 }
 
-//BOOL CWorkTool::NetPeek_Chatting()
-//{
-//	char strValue[256];
-//	int  nLen = 256;
-//
-//	BOOL bOk = m_socketListen.RecvStrValue ( strValue, nLen );
-////	if ( bOk )
-////		MessageBox ( NULL, strValue, "Chat", MB_OK );
-//	
-//	return bOk;
-//}
-
-
-//BOOL CWorkTool::NetPeek_RecvFile()
-//{
-//	char strFileFullName[MAX_PATH];
-//	int  nLen = MAX_PATH;
-//	if (!m_socketListen.RecvStrValue(strFileFullName, nLen))
-//		return FALSE;
-//
-//	return m_socketListen.RecvFile(strFileFullName);
-//}
-//
-//BOOL CWorkTool::NetPeek_SendFile()
-//{
-//	char strFileFullName[MAX_PATH];
-//	int  nFileLen = MAX_PATH;
-//
-//	if (!m_socketListen.RecvStrValue(strFileFullName, nFileLen))
-//		return FALSE;
-//
-//	return m_socketListen.SendFile(strFileFullName);
-//}
-
-BOOL CWorkTool::RecvEmptyDir()
-{
-	CString strDir;
-	if (!m_socketListen.RecvStrValue(strDir))
-		return FALSE;
-
-	if (m_pClientUser)
-		return m_pClientUser->OnEmptyDirReceived(strDir);
-
-	return FALSE;
-}
 
 BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, CString& strOutput)
 {
@@ -176,9 +131,9 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 			return FALSE;
 		}
 
-		strOutput = _M("Data format:") + strActualClipboardFormat + "\r\n\r\n" + strOutput;
+		strOutput = _M("Data format : ") + strActualClipboardFormat + "\r\n\r\n" + strOutput;
 	}
-	else if (strActualClipboardFormat == _M("Directory|File"))
+	else if (strActualClipboardFormat == _M("Directory | File"))
 	{
 		if (m_pClientUser == NULL)
 		{
@@ -186,39 +141,69 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 			return FALSE;
 		}
 
-		m_pClientUser->OnNewMessage(_M("Data format:") + strActualClipboardFormat, TRUE);
+		m_pClientUser->OnNewMessage(_M("Data format : ") + strActualClipboardFormat, TRUE);
 
 		int nDirCount = 0;
 		int nFileCount = 0;
+		int nTotalSizeInM = 0;
 		socketTool.RecvIntValue(nDirCount);
 		socketTool.RecvIntValue(nFileCount);
+		socketTool.RecvIntValue(nTotalSizeInM);
 
-		strOutput.Format(_M("\r\nTotal %d directories, %d files"), nDirCount, nFileCount);
-		m_pClientUser->OnNewMessage(strOutput, FALSE);
-
-		// Create directory
-		CString strDirName;
-		for (int i = 0; i < nDirCount; i++)
+		BOOL bContinue = TRUE;
+		if (nTotalSizeInM > 100)
 		{
-			if (!socketTool.RecvStrValue(strDirName))
-				return FALSE;
-
-			m_pClientUser->OnEmptyDirReceived("C:\\temp\\" + strDirName);
+			bContinue = AfxMessageBox(_M("Total size of copied files in clipboard is larger than 100M, continue to copy?"), MB_YESNO) == IDYES;
 		}
+		socketTool.SendIntValue((int)bContinue);
 
-		CString strFileName;
-		for (int i = 0; i < nFileCount; i++)
+		CString strTempCopyPath;
+		if (bContinue)
 		{
-			if (!socketTool.RecvStrValue(strFileName))
-				return FALSE;
-			m_pClientUser->OnEmptyDirReceived(strFileName);
+			strOutput.Format(_M("\r\nTotal %d directories, %d files, %d MB"), nDirCount, nFileCount, nTotalSizeInM);
+			m_pClientUser->OnNewMessage(strOutput, FALSE);
 
-			socketTool.RecvFile((LPTSTR)(LPCTSTR)("C:\\temp\\" + strFileName));
+			
+			if (!CreateTempDirForCopy(socketTool.m_strTempPath, strIp, strTempCopyPath))
+			{
+
+			}
+
+			m_pClientUser->OnNewMessage(_M("Files will be copied to ") + strTempCopyPath, FALSE);
+			
+			if (nDirCount > 0)
+				m_pClientUser->OnNewMessage(_M("\r\nCreating directories... "), FALSE);
+
+			// Create directory
+			CString strDirName;
+			for (int i = 0; i < nDirCount; i++)
+			{
+				if (!socketTool.RecvStrValue(strDirName))
+					return FALSE;
+
+				CreateDirectory(strTempCopyPath + strDirName, NULL);
+
+				m_pClientUser->OnNewMessage(strDirName, FALSE);
+			}
+
+			if (nFileCount > 0)
+				m_pClientUser->OnNewMessage(_M("\r\nCopying files... "), FALSE);
+
+			// Copy file
+			CString strFileName;
+			for (int i = 0; i < nFileCount; i++)
+			{
+				if (!socketTool.RecvStrValue(strFileName))
+					return FALSE;
+
+				socketTool.RecvFile((LPTSTR)(LPCTSTR)(strTempCopyPath + strFileName));
+				m_pClientUser->OnNewMessage(strFileName, FALSE);
+			}
+
+			m_pClientUser->OnNewMessage("\r\n", FALSE);
 		}
-
-		m_pClientUser->OnNewMessage("\r\n", FALSE);
 		
-		strOutput = "";
+		strOutput = strTempCopyPath;
 	}
 
 
@@ -270,22 +255,29 @@ BOOL CWorkTool::Response_GetClipboardData()
 			if (m_pServerUser)
 			{
 				CDiskFile diskFile;
-				if (m_pServerUser->OnGetAllDirFilesFromClipboard(diskFile))
+				int nTotalSizeInM = 0;
+				if (m_pServerUser->OnGetAllDirFilesFromClipboard(diskFile, nTotalSizeInM))
 				{
-					m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)_M("Directory|File"));
+					m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)_M("Directory | File"));
 					m_socketListen.SendIntValue((int)diskFile.vecDirectory.size());
 					m_socketListen.SendIntValue((int)diskFile.vecFile.size());
+					m_socketListen.SendIntValue(nTotalSizeInM);
 				}
 
-				for (int i = 0; i < (int)diskFile.vecDirectory.size(); i++)
+				int nContinue;
+				m_socketListen.RecvIntValue(nContinue);
+				if (nContinue == 1)
 				{
-					m_socketListen.SendStrValue(diskFile.vecDirectory[i].GetBuffer(0));
-				}
+					for (int i = 0; i < (int)diskFile.vecDirectory.size(); i++)
+					{
+						m_socketListen.SendStrValue(diskFile.vecDirectory[i].GetBuffer(0));
+					}
 
-				for (int i = 0; i < (int)diskFile.vecFile.size(); i++)
-				{
-					m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)diskFile.vecFile[i]);
-					m_socketListen.SendFile((LPTSTR)(LPCTSTR)(diskFile.strWorkDir + diskFile.vecFile[i]));
+					for (int i = 0; i < (int)diskFile.vecFile.size(); i++)
+					{
+						m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)diskFile.vecFile[i]);
+						m_socketListen.SendFile((LPTSTR)(LPCTSTR)(diskFile.strWorkDir + diskFile.vecFile[i]));
+					}
 				}
 			}
 		}
@@ -294,4 +286,39 @@ BOOL CWorkTool::Response_GetClipboardData()
 	}
 
 	return TRUE;
+}
+
+BOOL CWorkTool::CreateTempDirForCopy(CString strSysTempDir, CString strIp, CString& strDestDir)
+{
+	strDestDir = strSysTempDir + "\\NetClipboard";
+	if (!CreateDirectory(strDestDir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
+		return FALSE;
+
+	strDestDir += "\\" + strIp;
+	if (!CreateDirectory(strDestDir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
+		return FALSE;
+
+	strDestDir += "\\" + GetCurrentFormattedTime(TRUE);
+	if (!CreateDirectory(strDestDir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
+		return FALSE;
+
+	strDestDir += "\\";
+
+	return TRUE;
+}
+
+CString CWorkTool::GetCurrentFormattedTime(BOOL bForFileName)
+{
+	CString strFormat = "%04d-%02d-%02d %02d-%02d-%02d";
+	if (!bForFileName)
+	{
+		strFormat = "%04d-%02d-%02d %02d:%02d:%02d";
+	}
+
+	COleDateTime dt = COleDateTime::GetCurrentTime();
+	CString strRet;
+	strRet.Format(strFormat, dt.GetYear(), dt.GetMonth(), dt.GetDay(),
+		dt.GetHour(), dt.GetMinute(), dt.GetSecond());
+
+	return strRet;
 }

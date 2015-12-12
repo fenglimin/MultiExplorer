@@ -20,13 +20,11 @@ public:
 	IWorkToolServerUser*	m_pServerUser;
 	IWorkToolClientUser*	m_pClientUser;
 public:
-	BOOL NetPeek_SendFile();
-	BOOL NetPeek_RecvFile();
-	BOOL NetPeek_Chatting();
 	BOOL PendingRead();
 	BOOL StartWorking ( int nPort );
 	void SetClientUser(IWorkToolClientUser* pClientUser) { m_pClientUser = pClientUser; }
-	BOOL RecvEmptyDir();
+	CString GetCurrentFormattedTime(BOOL bForFileName);
+	BOOL CreateTempDirForCopy(CString strSysTempDir, CString strIp, CString& strDestDir);
 
 	BOOL Request_GetClipboardData(CString strIp, int nPort, int nFormat, CString& strOutput);
 	BOOL Response_GetClipboardData();

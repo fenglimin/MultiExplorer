@@ -15,7 +15,7 @@ public:
 	virtual ~CNetworkOperationDialog();
 
 	void OnGetClipboardData();
-	CString GetCurrentFormattedTime(BOOL bForFileName);
+	
 	void AppendMessage(CString strMessage, BOOL bCleanFirst, BOOL bAddTimeStamp, BOOL bAppendEndline);
 
 	CCustomListCtrl m_listMachine;
@@ -32,7 +32,7 @@ protected:
 	virtual BOOL OnRowLDblClicked(CListCtrl* pListCtrl, int nRow, int nCol, UINT nFlags, CPoint point);
 	virtual BOOL OnNewMessage(const CString& strMessage, BOOL bAddTimeStamp);
 	
-	virtual BOOL OnEmptyDirReceived(CString strDir);
+	virtual BOOL OnEmptyDirReceived(CString strTargetDir, CString strDir);
 
 	void SaveConfig();
 	void LoadConfig();
@@ -46,5 +46,4 @@ public:
 	afx_msg void OnBnClickedButtonGetData();
 	afx_msg void OnClose();
 	afx_msg void OnBnClickedOk();
-	afx_msg void OnEnChangeRichedit21();
 };

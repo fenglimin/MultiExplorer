@@ -43,7 +43,6 @@ BEGIN_MESSAGE_MAP(CNetworkOperationDialog, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_GET_DATA, &CNetworkOperationDialog::OnBnClickedButtonGetData)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDOK, &CNetworkOperationDialog::OnBnClickedOk)
-	ON_EN_CHANGE(IDC_RICHEDIT21, &CNetworkOperationDialog::OnEnChangeRichedit21)
 END_MESSAGE_MAP()
 
 
@@ -135,23 +134,6 @@ void CNetworkOperationDialog::OnBnClickedButtonGetData()
  	AfxBeginThread(GetClipboardDataThreadFunc, (void*)this);
 }
 
-
-CString CNetworkOperationDialog::GetCurrentFormattedTime(BOOL bForFileName)
-{
-	CString strFormat = "%04d-%02d-%02d %02d-%02d-%02d";
-	if (!bForFileName)
-	{
-		strFormat = "%04d-%02d-%02d %02d:%02d:%02d";
-	}
-
-	COleDateTime dt = COleDateTime::GetCurrentTime();
-	CString strRet;
-	strRet.Format(strFormat, dt.GetYear(), dt.GetMonth(), dt.GetDay(),
-		dt.GetHour(), dt.GetMinute(), dt.GetSecond());
-
-	return strRet;
-}
-
 void CNetworkOperationDialog::OnClose()
 {
 	SaveConfig();
@@ -214,7 +196,7 @@ void CNetworkOperationDialog::SaveConfig()
 void CNetworkOperationDialog::AppendMessage(CString strMessage, BOOL bCleanFirst, BOOL bAddTimeStamp, BOOL bAppendEndline)
 {
 	CEdit* pEdit = (CEdit*)GetDlgItem(IDC_EDIT_CLIPBOARD);
-
+	
 	int nLineCount = 0;
 	CString strExsitingMessage;
 	if (!bCleanFirst)
@@ -230,7 +212,7 @@ void CNetworkOperationDialog::AppendMessage(CString strMessage, BOOL bCleanFirst
 
 	if (bAddTimeStamp)
 	{
-		strExsitingMessage += GetCurrentFormattedTime(FALSE);
+		strExsitingMessage += m_pDiskFileManager->m_pWorkTool->GetCurrentFormattedTime(FALSE);
 		strExsitingMessage += " ";
 	}
 
@@ -283,21 +265,9 @@ BOOL CNetworkOperationDialog::OnNewMessage(const CString& strMessage, BOOL bAddT
 	return TRUE;
 }
 
-BOOL CNetworkOperationDialog::OnEmptyDirReceived(CString strDir)
+BOOL CNetworkOperationDialog::OnEmptyDirReceived(CString strTargetDir, CString strDir)
 {
-	CreateDirectory(strDir, NULL);
-
 	AppendMessage(strDir, FALSE, FALSE, FALSE);
 
 	return TRUE;
-}
-
-void CNetworkOperationDialog::OnEnChangeRichedit21()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the __super::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	// TODO:  Add your control notification handler code here
 }

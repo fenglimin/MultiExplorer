@@ -113,7 +113,7 @@ public:
 	virtual BOOL OnVirtualKeyHitted(CListCtrl* pListCtrl, UINT uVirtualKey);
 	virtual BOOL OnSort(CListCtrl* pListCtrl, RowItemData* pid1, RowItemData* pid2, int& nCompareResult);
 
-	virtual BOOL OnGetAllDirFilesFromClipboard(CDiskFile& diskFile);
+	virtual BOOL OnGetAllDirFilesFromClipboard(CDiskFile& diskFile, int& nTotalSizeInM);
 
 	void OnUserOption();
 	void OnOpenDirWithExplorer(const CString& strDir);
