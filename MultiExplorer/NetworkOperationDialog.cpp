@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CNetworkOperationDialog, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_GET_DATA, &CNetworkOperationDialog::OnBnClickedButtonGetData)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDOK, &CNetworkOperationDialog::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_BUTTON_POST_ACTION, &CNetworkOperationDialog::OnBnClickedButtonPostAction)
 END_MESSAGE_MAP()
 
 
@@ -270,4 +271,46 @@ BOOL CNetworkOperationDialog::OnEmptyDirReceived(CString strTargetDir, CString s
 	AppendMessage(strDir, FALSE, FALSE, FALSE);
 
 	return TRUE;
+}
+
+BOOL CNetworkOperationDialog::OnComplete(BOOL bIsText, CString strData)
+{
+	CString strButtonText = bIsText ? _M("Copy to Clipboard") : _M("Open directory");
+
+	CButton* pButton = (CButton*)GetDlgItem(IDC_BUTTON_POST_ACTION);
+	pButton->SetWindowText(strButtonText);
+	pButton->ShowWindow(SW_SHOW);
+
+	m_bLastOpIsText = bIsText;
+	m_strLastOpData = strData;
+
+	return TRUE;
+}
+
+void CNetworkOperationDialog::OnBnClickedButtonPostAction()
+{
+	if (m_bLastOpIsText)
+	{
+		OpenClipboard();
+
+		int buff_size = m_strLastOpData.GetLength();
+		CStringW strWide = CStringW(m_strLastOpData);
+		int nLen = strWide.GetLength();
+
+		HANDLE clipbuffer;
+		char* buffer;
+		clipbuffer = ::GlobalAlloc(GMEM_DDESHARE, (nLen + 1) * 2);
+		buffer = (char*)::GlobalLock(clipbuffer);
+		memset(buffer, 0, (nLen + 1) * 2);
+		memcpy_s(buffer, nLen * 2, strWide.GetBuffer(0), nLen * 2);
+		strWide.ReleaseBuffer();
+		GlobalUnlock(clipbuffer);
+
+		SetClipboardData(CF_UNICODETEXT, clipbuffer);
+		CloseClipboard();
+	}
+	else
+	{
+		m_pDiskFileManager->StartNewMultiExplorer(m_strLastOpData);
+	}
 }

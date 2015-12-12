@@ -123,6 +123,13 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 		return FALSE;
 	}
 
+	if (m_pClientUser == NULL)
+	{
+		strOutput = _M("Internal error!");
+		return FALSE;
+	}
+
+	BOOL bIsText = TRUE;
 	if (strActualClipboardFormat == _M("Ansi Text") || strActualClipboardFormat == _M("Unicode Text"))
 	{
 		if (!socketTool.RecvStrValue(strOutput))
@@ -135,12 +142,7 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 	}
 	else if (strActualClipboardFormat == _M("Directory | File"))
 	{
-		if (m_pClientUser == NULL)
-		{
-			strOutput = _M("Internal error!");
-			return FALSE;
-		}
-
+		bIsText = FALSE;
 		m_pClientUser->OnNewMessage(_M("Data format : ") + strActualClipboardFormat, TRUE);
 
 		int nDirCount = 0;
@@ -213,6 +215,7 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 		return FALSE;
 	}
 
+	m_pClientUser->OnComplete(bIsText, strOutput);
 	return TRUE;
 }
 

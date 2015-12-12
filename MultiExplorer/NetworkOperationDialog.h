@@ -23,6 +23,9 @@ public:
 	int m_nRow;
 	BOOL m_bPortChanged;
 
+	BOOL m_bLastOpIsText;
+	CString m_strLastOpData;
+
 // Dialog Data
 	enum { IDD = IDD_DIALOG_NETWORK };
 
@@ -33,6 +36,7 @@ protected:
 	virtual BOOL OnNewMessage(const CString& strMessage, BOOL bAddTimeStamp);
 	
 	virtual BOOL OnEmptyDirReceived(CString strTargetDir, CString strDir);
+	virtual BOOL OnComplete(BOOL bIsText, CString strData);
 
 	void SaveConfig();
 	void LoadConfig();
@@ -46,4 +50,5 @@ public:
 	afx_msg void OnBnClickedButtonGetData();
 	afx_msg void OnClose();
 	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClickedButtonPostAction();
 };

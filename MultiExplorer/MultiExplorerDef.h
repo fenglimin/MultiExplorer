@@ -141,4 +141,5 @@ class IWorkToolClientUser
 public:
 	virtual BOOL OnNewMessage(const CString& strMessage, BOOL bAddTimeStamp){ return TRUE; }
 	virtual BOOL OnEmptyDirReceived(CString strTargetDir, CString strDir){ return TRUE; }
+	virtual BOOL OnComplete(BOOL bIsText, CString strData){ return TRUE; }
 };
