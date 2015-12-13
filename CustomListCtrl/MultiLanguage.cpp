@@ -184,6 +184,25 @@ void CMultiLanguage::Init()
 	m_mapTranslate["Listening port was modified, please save the changes and restart application."] = "端口已更改，请保存更改并重启应用。";
 	m_mapTranslate["Use Unicode"] = "使用Unicode格式";
 	m_mapTranslate["Append Message"] = "附加消息";
+	m_mapTranslate["Send clipboard format failed!"] = "发送剪贴板数据格式失败！";
+	m_mapTranslate["Receive actual  clipboard format failed!"] = "获取剪贴板数据格式失败！";
+	m_mapTranslate["Internal error!"] = "内部错误！";
+	m_mapTranslate["Ansi Text"] = "标准文本";
+	m_mapTranslate["Unicode Text"] = "UniCode文本";
+	m_mapTranslate["Data format : "] = "数据格式：";
+	m_mapTranslate["Directory | File"] = "目录|文件";
+	m_mapTranslate["Total size of copied files in clipboard is larger than 100M(%dM), continue to copy?"] = "剪贴板中的文件超过100兆（%d兆），要拷贝吗？";
+	m_mapTranslate["Creating directories..."] = "正在创建目录...";
+	m_mapTranslate["Copying files..."] = "正在拷贝文件...";
+	m_mapTranslate["Transfer completed! Total %d directories, %d files, %d MB"] = "传输结束！共拷贝%d个目录，%d个文件，%d兆";
+	m_mapTranslate["Files were copied to "] = "文件被拷贝到";
+	m_mapTranslate["Transfer stopped by user!"] = "用户终止传输！";
+	m_mapTranslate["Please check directory "] = "请检查目录";
+	m_mapTranslate["No data"] = "无数据";
+	m_mapTranslate["Are you sure to stop transfer?"] = "确定要终止传输吗？";
+	m_mapTranslate["Stop"] = "停止";
+	m_mapTranslate["Copy to Clipboard"] = "拷贝到剪贴板";
+	m_mapTranslate["Open directory"] = "打开目录";
 }
 
 void CMultiLanguage::Clear()

@@ -159,7 +159,9 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 	
 		if (nTotalSizeInM > 100)
 		{
-			m_bContinueTransfer = AfxMessageBox(_M("Total size of copied files in clipboard is larger than 100M, continue to copy?"), MB_YESNO) == IDYES;
+			CString strMsg;
+			strMsg.Format(_M("Total size of copied files in clipboard is larger than 100M(%dM), continue to copy?"), nTotalSizeInM);
+			m_bContinueTransfer = AfxMessageBox(strMsg, MB_YESNO) == IDYES;
 		}
 		socketTool.SendIntValue((int)m_bContinueTransfer);
 

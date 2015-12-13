@@ -295,7 +295,7 @@ BOOL CNetworkOperationDialog::OnStart(BOOL bIsText)
 	if (!bIsText)
 	{
 		pButton->EnableWindow(TRUE);
-		pButton->SetWindowText("Stop");
+		pButton->SetWindowText(_M("Stop"));
 	}
 
 	return TRUE;
