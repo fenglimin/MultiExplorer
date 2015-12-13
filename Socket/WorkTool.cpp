@@ -91,7 +91,7 @@ BOOL CWorkTool::PendingRead()
 }
 
 
-BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, CString& strOutput)
+BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, CString& strErrorMsg)
 {
 	CSocketTool socketTool;
 	socketTool.SetTimeOut(60000);
@@ -102,49 +102,52 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 
 	if (!socketTool.Connect((LPTSTR)(LPCTSTR)strIp, nPort))
 	{
-		strOutput.Format(_M("Can Not connect to server, ip address : %s, Port : %d."), strIp, nPort);
+		strErrorMsg.Format(_M("Can Not connect to server, ip address : %s, Port : %d."), strIp, nPort);
 		return FALSE;
 	}
 
 	if (!socketTool.SendIntValue(NETWORK_GET_CLIPBOARD_DATA))
 	{
-		strOutput.Format(_M("Send command(%s) failed!"), "NETWORK_GET_CLIPBOARD_DATA");
+		strErrorMsg.Format(_M("Send command(%s) failed!"), "NETWORK_GET_CLIPBOARD_DATA");
 		return FALSE;
 	}
 
 	if (!socketTool.SendIntValue(nFormat))
 	{
-		strOutput.Format(_M("Send clipboard format failed!"));
+		strErrorMsg.Format(_M("Send clipboard format failed!"));
 		return FALSE;
 	}
 
 	CString strActualClipboardFormat;
 	if (!socketTool.RecvStrValue(strActualClipboardFormat))
 	{
-		strOutput.Format(_M("Receive actual  clipboard format failed!"));
+		strErrorMsg.Format(_M("Receive actual  clipboard format failed!"));
 		return FALSE;
 	}
 
 	if (m_pClientUser == NULL)
 	{
-		strOutput = _M("Internal error!");
+		strErrorMsg = _M("Internal error!");
 		return FALSE;
 	}
 
 	BOOL bIsText = TRUE;
+	CString strOutput;
 	if (strActualClipboardFormat == _M("Ansi Text") || strActualClipboardFormat == _M("Unicode Text"))
 	{
 		if (!socketTool.RecvStrValue(strOutput))
 		{
-			strOutput.Format(_M("Received clipboard failed!"));
+			strErrorMsg.Format(_M("Received clipboard failed!"));
 			return FALSE;
 		}
 
-		strOutput = _M("Data format : ") + strActualClipboardFormat + "\r\n\r\n" + strOutput;
+		m_pClientUser->OnNewMessage(_M("Data format : ") + strActualClipboardFormat, TRUE);
+		m_pClientUser->OnNewMessage("\r\n" + strOutput + "\r\n", FALSE);
 	}
 	else if (strActualClipboardFormat == _M("Directory | File"))
 	{
 		bIsText = FALSE;
+		m_bContinueTransfer = TRUE;
 		m_pClientUser->OnNewMessage(_M("Data format : ") + strActualClipboardFormat, TRUE);
 
 		int nDirCount = 0;
@@ -163,9 +166,6 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 		CString strTempCopyPath;
 		if (m_bContinueTransfer)
 		{
-			strOutput.Format(_M("\r\nTotal %d directories, %d files, %d MB"), nDirCount, nFileCount, nTotalSizeInM);
-			m_pClientUser->OnNewMessage(strOutput, FALSE);
-
 			m_pClientUser->OnStart(bIsText);
 
 			
@@ -174,10 +174,8 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 
 			}
 
-			m_pClientUser->OnNewMessage(_M("Files will be copied to ") + strTempCopyPath, FALSE);
-			
 			if (nDirCount > 0)
-				m_pClientUser->OnNewMessage(_M("\r\nCreating directories... "), FALSE);
+				m_pClientUser->OnNewMessage(_M("Creating directories..."), TRUE);
 
 			// Create directory
 			CString strDirName;
@@ -200,7 +198,7 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 			if (m_bContinueTransfer)
 			{
 				if (nFileCount > 0)
-					m_pClientUser->OnNewMessage(_M("\r\nCopying files... "), FALSE);
+					m_pClientUser->OnNewMessage(_M("Copying files..."), TRUE);
 
 				// Copy file
 				CString strFileName;
@@ -220,7 +218,17 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 				}
 			}
 
-			m_pClientUser->OnNewMessage("\r\n", FALSE);
+			if (m_bContinueTransfer)
+			{
+				strOutput.Format(_M("Transfer completed! Total %d directories, %d files, %d MB"), nDirCount, nFileCount, nTotalSizeInM);
+				m_pClientUser->OnNewMessage(strOutput, TRUE);
+				m_pClientUser->OnNewMessage(_M("Files were copied to ") + strTempCopyPath, TRUE);
+			}
+			else
+			{
+				m_pClientUser->OnNewMessage(_M("Transfer stopped by user!"), TRUE);
+				m_pClientUser->OnNewMessage(_M("Please check directory ") + strTempCopyPath, TRUE);
+			}
 		}
 		
 		strOutput = strTempCopyPath;
@@ -233,7 +241,7 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 
 	if (!socketTool.SendIntValue(NETWORK_TASK_END))
 	{
-		strOutput.Format(_M("Send command(%s) failed!"), "NETWORK_TASK_END");
+		strErrorMsg.Format(_M("Send command(%s) failed!"), "NETWORK_TASK_END");
 		return FALSE;
 	}
 

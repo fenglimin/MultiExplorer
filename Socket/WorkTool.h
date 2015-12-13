@@ -27,7 +27,7 @@ public:
 	CString GetCurrentFormattedTime(BOOL bForFileName);
 	BOOL CreateTempDirForCopy(CString strSysTempDir, CString strIp, CString& strDestDir);
 
-	BOOL Request_GetClipboardData(CString strIp, int nPort, int nFormat, CString& strOutput);
+	BOOL Request_GetClipboardData(CString strIp, int nPort, int nFormat, CString& strErrorMsg);
 	BOOL Response_GetClipboardData();
 };
 

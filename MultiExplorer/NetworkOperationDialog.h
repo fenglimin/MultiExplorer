@@ -17,7 +17,7 @@ public:
 	void OnGetClipboardData();
 	void OnCancelGetClipboardData();
 	
-	void AppendMessage(CString strMessage, BOOL bCleanFirst, BOOL bAddTimeStamp, BOOL bAppendEndline);
+	void AppendMessage(CString strMessage, BOOL bAddTimeStamp, BOOL bAppendEndline);
 
 	CCustomListCtrl m_listMachine;
 	CDiskFileManager* m_pDiskFileManager;
