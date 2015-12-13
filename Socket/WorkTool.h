@@ -17,6 +17,7 @@ public:
 
 	CSocketTool		m_socketListen;
 	BOOL			m_bExit;
+	BOOL			m_bContinueTransfer;
 	IWorkToolServerUser*	m_pServerUser;
 	IWorkToolClientUser*	m_pClientUser;
 public:

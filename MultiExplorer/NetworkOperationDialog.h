@@ -15,6 +15,7 @@ public:
 	virtual ~CNetworkOperationDialog();
 
 	void OnGetClipboardData();
+	void OnCancelGetClipboardData();
 	
 	void AppendMessage(CString strMessage, BOOL bCleanFirst, BOOL bAddTimeStamp, BOOL bAppendEndline);
 
@@ -36,6 +37,7 @@ protected:
 	virtual BOOL OnNewMessage(const CString& strMessage, BOOL bAddTimeStamp);
 	
 	virtual BOOL OnEmptyDirReceived(CString strTargetDir, CString strDir);
+	virtual BOOL OnStart(BOOL bIsText);
 	virtual BOOL OnComplete(BOOL bIsText, CString strData);
 
 	void SaveConfig();

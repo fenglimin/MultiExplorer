@@ -9,6 +9,8 @@ CWorkTool::CWorkTool(IWorkToolServerUser* pServerUser)
 	m_bExit = FALSE;
 	m_pServerUser = pServerUser;
 	m_pClientUser = NULL;
+
+	m_bContinueTransfer = TRUE;
 }
 
 CWorkTool::~CWorkTool()
@@ -151,19 +153,20 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 		socketTool.RecvIntValue(nDirCount);
 		socketTool.RecvIntValue(nFileCount);
 		socketTool.RecvIntValue(nTotalSizeInM);
-
-		BOOL bContinue = TRUE;
+	
 		if (nTotalSizeInM > 100)
 		{
-			bContinue = AfxMessageBox(_M("Total size of copied files in clipboard is larger than 100M, continue to copy?"), MB_YESNO) == IDYES;
+			m_bContinueTransfer = AfxMessageBox(_M("Total size of copied files in clipboard is larger than 100M, continue to copy?"), MB_YESNO) == IDYES;
 		}
-		socketTool.SendIntValue((int)bContinue);
+		socketTool.SendIntValue((int)m_bContinueTransfer);
 
 		CString strTempCopyPath;
-		if (bContinue)
+		if (m_bContinueTransfer)
 		{
 			strOutput.Format(_M("\r\nTotal %d directories, %d files, %d MB"), nDirCount, nFileCount, nTotalSizeInM);
 			m_pClientUser->OnNewMessage(strOutput, FALSE);
+
+			m_pClientUser->OnStart(bIsText);
 
 			
 			if (!CreateTempDirForCopy(socketTool.m_strTempPath, strIp, strTempCopyPath))
@@ -180,6 +183,12 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 			CString strDirName;
 			for (int i = 0; i < nDirCount; i++)
 			{
+				if (!socketTool.SendIntValue(m_bContinueTransfer))
+					return FALSE;
+
+				if (!m_bContinueTransfer)
+					break;
+
 				if (!socketTool.RecvStrValue(strDirName))
 					return FALSE;
 
@@ -188,18 +197,27 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 				m_pClientUser->OnNewMessage(strDirName, FALSE);
 			}
 
-			if (nFileCount > 0)
-				m_pClientUser->OnNewMessage(_M("\r\nCopying files... "), FALSE);
-
-			// Copy file
-			CString strFileName;
-			for (int i = 0; i < nFileCount; i++)
+			if (m_bContinueTransfer)
 			{
-				if (!socketTool.RecvStrValue(strFileName))
-					return FALSE;
+				if (nFileCount > 0)
+					m_pClientUser->OnNewMessage(_M("\r\nCopying files... "), FALSE);
 
-				socketTool.RecvFile((LPTSTR)(LPCTSTR)(strTempCopyPath + strFileName));
-				m_pClientUser->OnNewMessage(strFileName, FALSE);
+				// Copy file
+				CString strFileName;
+				for (int i = 0; i < nFileCount; i++)
+				{
+					if (!socketTool.SendIntValue(m_bContinueTransfer))
+						return FALSE;
+
+					if (!m_bContinueTransfer)
+						break;
+
+					if (!socketTool.RecvStrValue(strFileName))
+						return FALSE;
+
+					socketTool.RecvFile((LPTSTR)(LPCTSTR)(strTempCopyPath + strFileName));
+					m_pClientUser->OnNewMessage(strFileName, FALSE);
+				}
 			}
 
 			m_pClientUser->OnNewMessage("\r\n", FALSE);
@@ -275,16 +293,30 @@ BOOL CWorkTool::Response_GetClipboardData()
 				m_socketListen.RecvIntValue(nContinue);
 				if (nContinue == 1)
 				{
+					// Send direcotry name
 					for (int i = 0; i < (int)diskFile.vecDirectory.size(); i++)
 					{
+						m_socketListen.RecvIntValue(nContinue);
+						if (!nContinue)
+							break;
+						
 						m_socketListen.SendStrValue(diskFile.vecDirectory[i].GetBuffer(0));
 					}
 
-					for (int i = 0; i < (int)diskFile.vecFile.size(); i++)
+					if (nContinue)
 					{
-						m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)diskFile.vecFile[i]);
-						m_socketListen.SendFile((LPTSTR)(LPCTSTR)(diskFile.strWorkDir + diskFile.vecFile[i]));
+						// Send file
+						for (int i = 0; i < (int)diskFile.vecFile.size(); i++)
+						{
+							m_socketListen.RecvIntValue(nContinue);
+							if (!nContinue)
+								break;
+
+							m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)diskFile.vecFile[i]);
+							m_socketListen.SendFile((LPTSTR)(LPCTSTR)(diskFile.strWorkDir + diskFile.vecFile[i]));
+						}
 					}
+
 				}
 			}
 		}

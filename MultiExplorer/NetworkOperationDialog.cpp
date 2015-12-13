@@ -119,20 +119,31 @@ void CNetworkOperationDialog::SetUIText()
 
 void CNetworkOperationDialog::OnBnClickedButtonGetData()
 {
-	m_pDiskFileManager->m_userOption.bClipboardUnicode = IsDlgButtonChecked(IDC_CHECK_UNICODE);
-	m_pDiskFileManager->m_userOption.bAppendMessage = IsDlgButtonChecked(IDC_CHECK_APPEND_MESSAGE);
+	CString strButtonText;
+	GetDlgItemText(IDC_BUTTON_GET_DATA, strButtonText);
 
-	POSITION pos = m_listMachine.GetFirstSelectedItemPosition();
-	int nRow = m_listMachine.GetNextSelectedItem(pos);
-
-	if (nRow == -1)
+	if (strButtonText == _M("Get Clipboard Data"))
 	{
-		AppendMessage(_M("Please select a machine!"), !m_pDiskFileManager->m_userOption.bAppendMessage, TRUE, TRUE);
-		return;
+		m_pDiskFileManager->m_userOption.bClipboardUnicode = IsDlgButtonChecked(IDC_CHECK_UNICODE);
+		m_pDiskFileManager->m_userOption.bAppendMessage = IsDlgButtonChecked(IDC_CHECK_APPEND_MESSAGE);
+
+		POSITION pos = m_listMachine.GetFirstSelectedItemPosition();
+		int nRow = m_listMachine.GetNextSelectedItem(pos);
+
+		if (nRow == -1)
+		{
+			AppendMessage(_M("Please select a machine!"), !m_pDiskFileManager->m_userOption.bAppendMessage, TRUE, TRUE);
+			return;
+		}
+
+		m_nRow = nRow;
+		AfxBeginThread(GetClipboardDataThreadFunc, (void*)this);
+	}
+	else
+	{
+		OnCancelGetClipboardData();
 	}
 
-	m_nRow = nRow;
- 	AfxBeginThread(GetClipboardDataThreadFunc, (void*)this);
 }
 
 void CNetworkOperationDialog::OnClose()
@@ -259,6 +270,11 @@ void CNetworkOperationDialog::OnGetClipboardData()
 	GetDlgItem(IDC_BUTTON_GET_DATA)->EnableWindow(TRUE);
 }
 
+void CNetworkOperationDialog::OnCancelGetClipboardData()
+{
+	m_pDiskFileManager->m_pWorkTool->m_bContinueTransfer = AfxMessageBox(_M("Are you sure to stop transfer?"), MB_YESNO) == IDNO;;
+}
+
 BOOL CNetworkOperationDialog::OnNewMessage(const CString& strMessage, BOOL bAddTimeStamp)
 {
 	AppendMessage(strMessage, FALSE, bAddTimeStamp, FALSE);
@@ -273,6 +289,18 @@ BOOL CNetworkOperationDialog::OnEmptyDirReceived(CString strTargetDir, CString s
 	return TRUE;
 }
 
+BOOL CNetworkOperationDialog::OnStart(BOOL bIsText)
+{
+	CButton* pButton = (CButton*)GetDlgItem(IDC_BUTTON_GET_DATA);
+	if (!bIsText)
+	{
+		pButton->EnableWindow(TRUE);
+		pButton->SetWindowText("Stop");
+	}
+
+	return TRUE;
+}
+
 BOOL CNetworkOperationDialog::OnComplete(BOOL bIsText, CString strData)
 {
 	CString strButtonText = bIsText ? _M("Copy to Clipboard") : _M("Open directory");
@@ -283,6 +311,8 @@ BOOL CNetworkOperationDialog::OnComplete(BOOL bIsText, CString strData)
 
 	m_bLastOpIsText = bIsText;
 	m_strLastOpData = strData;
+
+	SetDlgItemText(IDC_BUTTON_GET_DATA, _M("Get Clipboard Data"));
 
 	return TRUE;
 }
