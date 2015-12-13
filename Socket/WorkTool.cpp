@@ -207,6 +207,10 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 		
 		strOutput = strTempCopyPath;
 	}
+	else if (strActualClipboardFormat == _M("No data"))
+	{
+		// No data wanted
+	}
 
 
 	if (!socketTool.SendIntValue(NETWORK_TASK_END))
@@ -284,6 +288,11 @@ BOOL CWorkTool::Response_GetClipboardData()
 				}
 			}
 		}
+		else
+		{
+			m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)_M("No data"));
+		}
+
 
 		::CloseClipboard();
 	}
