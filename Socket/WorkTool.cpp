@@ -253,7 +253,11 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 	}
 	else if (strActualClipboardFormat == _M("No data"))
 	{
-		// No data wanted
+		m_pClientUser->OnNewMessage(_M("Data format : ") + strActualClipboardFormat, TRUE);
+	}
+	else
+	{
+		m_pClientUser->OnNewMessage(strActualClipboardFormat, TRUE);
 	}
 
 
@@ -275,7 +279,7 @@ BOOL CWorkTool::Response_GetClipboardData()
 	CString strData;
 	if (::OpenClipboard(NULL))
 	{
-		if ( nFormat == CF_TEXT && ::IsClipboardFormatAvailable(CF_TEXT))
+		if (nFormat == CF_TEXT && ::IsClipboardFormatAvailable(CF_TEXT))
 		{
 			HANDLE hData = ::GetClipboardData(CF_TEXT);
 			if (hData != NULL)
@@ -325,7 +329,7 @@ BOOL CWorkTool::Response_GetClipboardData()
 						m_socketListen.RecvIntValue(nContinue);
 						if (!nContinue)
 							break;
-						
+
 						m_socketListen.SendStrValue(diskFile.vecDirectory[i].GetBuffer(0));
 					}
 
@@ -350,11 +354,13 @@ BOOL CWorkTool::Response_GetClipboardData()
 		{
 			m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)_M("No data"));
 		}
-
-
-		::CloseClipboard();
+	}
+	else
+	{
+		m_socketListen.SendStrValue((LPTSTR)(LPCTSTR)_M("Error open clipboard!"));
 	}
 
+	::CloseClipboard();
 	return TRUE;
 }
 

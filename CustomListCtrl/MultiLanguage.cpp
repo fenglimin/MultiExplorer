@@ -204,6 +204,7 @@ void CMultiLanguage::Init()
 	m_mapTranslate["Copy to Clipboard"] = "拷贝到剪贴板";
 	m_mapTranslate["Open directory"] = "打开目录";
 	m_mapTranslate["Following %d file(s) were not copied successfully!"] = "下面 %d 个文件没有拷贝成功！";
+	m_mapTranslate["Error open clipboard!"] = "打开剪贴板错误！";
 }
 
 void CMultiLanguage::Clear()
