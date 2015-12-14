@@ -101,6 +101,7 @@ public:
 	void AddDiskFilePresenter(CListCtrl* pListCtrl, CFileExplorer* pDiskFileCoordinator);
 
 	vector<CDiskDriverInfo> GetDiskDriverList(BOOL bNotGetCapacityAndLabel);
+	__int64 GetFileSize(CString strFile);
 	BOOL GetDirFileList(const CString& strDir, vector<CDirectoryInfo>& vecSubDir, vector<CFileInfo>& vecFile, BOOL bLoadHiddenFile);
 	BOOL GetDirFileList(const CString& strDir, vector<CString>& vecSubDir, vector<CString>& vecFile);
 	BOOL GetDirFileListRecursive( const CString& strDir, BOOL bRecursive, const CString& strRecursiveDir, vector<CDirectoryInfo>& vecAllDirs, vector<CFileInfo>& vecAllFiles, BOOL bLoadHidden, const CString& strFilterName, const CString& strFilterExt );

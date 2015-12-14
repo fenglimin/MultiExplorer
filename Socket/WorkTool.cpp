@@ -169,7 +169,6 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 		if (m_bContinueTransfer)
 		{
 			m_pClientUser->OnStart(bIsText);
-
 			
 			if (!CreateTempDirForCopy(socketTool.m_strTempPath, strIp, strTempCopyPath))
 			{
@@ -197,6 +196,7 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 				m_pClientUser->OnNewMessage(strDirName, FALSE);
 			}
 
+			vector<CString> vecCopyFailed;
 			if (m_bContinueTransfer)
 			{
 				if (nFileCount > 0)
@@ -215,14 +215,30 @@ BOOL CWorkTool::Request_GetClipboardData(CString strIp, int nPort, int nFormat, 
 					if (!socketTool.RecvStrValue(strFileName))
 						return FALSE;
 
-					socketTool.RecvFile((LPTSTR)(LPCTSTR)(strTempCopyPath + strFileName));
 					m_pClientUser->OnNewMessage(strFileName, FALSE);
+					if (!socketTool.RecvFile((LPTSTR)(LPCTSTR)(strTempCopyPath + strFileName)))
+					{
+						vecCopyFailed.push_back(strFileName);
+					}
 				}
 			}
 
+			int nFailedCount = (int)vecCopyFailed.size();
+			if (nFailedCount > 0)
+			{
+				m_pClientUser->OnNewMessage("", FALSE);
+				strOutput.Format(_M("Following %d file(s) were not copied successfully!"), nFailedCount);
+				m_pClientUser->OnNewMessage(strOutput, TRUE);
+				for (int i = 0; i < nFailedCount; i++)
+				{
+					m_pClientUser->OnNewMessage(vecCopyFailed[i], FALSE);
+				}
+			}
+
+			m_pClientUser->OnNewMessage("", FALSE);
 			if (m_bContinueTransfer)
 			{
-				strOutput.Format(_M("Transfer completed! Total %d directories, %d files, %d MB"), nDirCount, nFileCount, nTotalSizeInM);
+				strOutput.Format(_M("Transfer completed! Total %d directories, %d files, %d MB"), nDirCount, nFileCount-nFailedCount, nTotalSizeInM);
 				m_pClientUser->OnNewMessage(strOutput, TRUE);
 				m_pClientUser->OnNewMessage(_M("Files were copied to ") + strTempCopyPath, TRUE);
 			}
@@ -344,7 +360,7 @@ BOOL CWorkTool::Response_GetClipboardData()
 
 BOOL CWorkTool::CreateTempDirForCopy(CString strSysTempDir, CString strIp, CString& strDestDir)
 {
-	strDestDir = strSysTempDir + "\\NetClipboard";
+	strDestDir = strSysTempDir + "NetClipboard";
 	if (!CreateDirectory(strDestDir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
 		return FALSE;
 

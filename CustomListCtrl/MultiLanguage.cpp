@@ -194,7 +194,7 @@ void CMultiLanguage::Init()
 	m_mapTranslate["Total size of copied files in clipboard is larger than 100M(%dM), continue to copy?"] = "剪贴板中的文件超过100兆（%d兆），要拷贝吗？";
 	m_mapTranslate["Creating directories..."] = "正在创建目录...";
 	m_mapTranslate["Copying files..."] = "正在拷贝文件...";
-	m_mapTranslate["Transfer completed! Total %d directories, %d files, %d MB"] = "传输结束！共拷贝%d个目录，%d个文件，%d兆";
+	m_mapTranslate["Transfer completed! Total %d directories, %d files, %d MB"] = "传输结束！共拷贝%d个目录，%d个文件，%d兆字节";
 	m_mapTranslate["Files were copied to "] = "文件被拷贝到";
 	m_mapTranslate["Transfer stopped by user!"] = "用户终止传输！";
 	m_mapTranslate["Please check directory "] = "请检查目录";
@@ -203,6 +203,7 @@ void CMultiLanguage::Init()
 	m_mapTranslate["Stop"] = "停止";
 	m_mapTranslate["Copy to Clipboard"] = "拷贝到剪贴板";
 	m_mapTranslate["Open directory"] = "打开目录";
+	m_mapTranslate["Following %d file(s) were not copied successfully!"] = "下面 %d 个文件没有拷贝成功！";
 }
 
 void CMultiLanguage::Clear()

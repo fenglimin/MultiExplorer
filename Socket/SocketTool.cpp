@@ -276,6 +276,9 @@ BOOL CSocketTool::RecvFile( char* strFileFullName )
 	if ( !RecvIntValue ( nFileLen ) )
 		return FALSE;
 
+	if (nFileLen == -1)
+		return FALSE;
+
 	HANDLE hFile = CreateFile ( strFileFullName, GENERIC_WRITE, FILE_SHARE_READ, 
 		NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_ARCHIVE, NULL );
 	if ( hFile == INVALID_HANDLE_VALUE )
@@ -325,14 +328,18 @@ BOOL CSocketTool::SendFile(char *strFileFullName)
 	FindClose(FindFirstFile(strFileFullName,&FindFileData));
 	int nFileLen = FindFileData.nFileSizeLow;
 
-	// Send file length
-	if ( !SendIntValue ( nFileLen ) )
-		return FALSE;
-
 	OFSTRUCT temp;
 	HANDLE hFile = (HANDLE)OpenFile ( strFileFullName, &temp, OF_READ );
-	if ( !hFile )
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		SendIntValue(-1);
 		return FALSE;
+	}
+
+	// Send file length
+	if (!SendIntValue(nFileLen))
+		return FALSE;
+
 
 	DWORD dwRead=0;
 	DWORD dw;

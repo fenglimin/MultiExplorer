@@ -235,6 +235,16 @@ BOOL CDiskFileManager::GetDirFileList( const CString& strDir, vector<CDirectoryI
 	return TRUE;
 }
 
+__int64 CDiskFileManager::GetFileSize(CString strFile)
+{
+	WIN32_FIND_DATA FindData; // File information
+	HANDLE hFind = FindFirstFile(strFile, &FindData);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return 0;
+	else
+		return ((__int64)FindData.nFileSizeHigh << 32) + FindData.nFileSizeLow;
+}
+
 BOOL CDiskFileManager::GetDirFileList( const CString& strDir, vector<CString>& vecSubDir, vector<CString>& vecFile )
 {
 	char	strDescDir[MAX_PATH];
@@ -3052,6 +3062,11 @@ BOOL CDiskFileManager::OnGetAllDirFilesFromClipboard(CDiskFile& diskFile, int& n
 
 
 	__int64 nTotalSize = 0;
+	for (int i = 0; i < (int)diskFile.vecFile.size(); i++)
+	{
+		nTotalSize += GetFileSize(diskFile.strWorkDir + diskFile.vecFile[i]);
+	}
+
 	for (int i = 0; i < (int)vecFile.size(); i++)
 	{
 		diskFile.vecFile.push_back(vecFile[i].strName);
